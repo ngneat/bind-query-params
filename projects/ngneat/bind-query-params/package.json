@@ -1,0 +1,25 @@
+{
+  "name": "@ngneat/bind-query-params",
+  "version": "1.0.0",
+  "dependencies": {
+    "tslib": "^2.0.0",
+    "lodash.set": "4.3.2"
+  },
+  "keywords": [
+    "angular",
+    "angular 2",
+    "bind-query-params"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/ngneat/bind-query-params/issue"
+  },
+  "homepage": "https://github.com/ngneat/bind-query-params#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngneat/bind-query-params"
+  }
+}
