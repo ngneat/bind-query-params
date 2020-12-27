@@ -1,13 +1,15 @@
 import { InjectionToken } from '@angular/core';
+import { parse } from './utils';
 
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string';
 
-export interface QueryParamParams<QueryParams = any> {
-  queryKey: keyof QueryParams;
+type QueryParamParams<QueryParams = any> = {
+  queryKey: keyof QueryParams & string;
   path?: string;
   type?: ParamDefType;
   trigger?: 'change' | 'submit';
-}
+  strategy?: 'modelToUrl' | 'twoWay';
+};
 
 export class QueryParamDef<QueryParams = any> {
   constructor(private config: QueryParamParams<QueryParams>) {}
@@ -27,10 +29,36 @@ export class QueryParamDef<QueryParams = any> {
   get trigger() {
     return this.config.trigger || 'change';
   }
+
+  get strategy() {
+    return this.config.strategy || 'twoWay';
+  }
+
+  parse(queryParamValue: string) {
+    return parse(queryParamValue, this.type);
+  }
 }
 
-export function createQueryParamsDefs<Q>(defs: QueryParamParams<Q>[]): QueryParamDef<Q>[] {
-  return defs.map((def) => new QueryParamDef(def));
+export class BindQueryParamsManager<T = any> {
+  defs: QueryParamDef<T>[];
+
+  constructor(defs: QueryParamParams<T>[]) {
+    this.defs = defs.map((def) => new QueryParamDef(def));
+  }
+
+  getDef(queryKey: keyof T) {
+    return this.defs.find((def) => def.queryKey === queryKey);
+  }
+
+  parse(queryParams: Record<keyof T, string>) {
+    const result = {};
+
+    for (const [key, value] of Object.entries(queryParams)) {
+      result[key] = this.getDef(key as keyof T).parse(value as any);
+    }
+
+    return result;
+  }
 }
 
 export interface BindQueryParamsOptions {

@@ -3,4 +3,4 @@
  */
 
 export { BindQueryParamsModule } from './lib/bind-query-params.directive';
-export { createQueryParamsDefs } from './lib/types';
+export { BindQueryParamsManager } from './lib/types';

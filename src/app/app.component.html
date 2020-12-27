@@ -1,10 +1,12 @@
 <form [formGroup]="group" [bindQueryParams]="bindQueryParams">
   <input type="text" formControlName="searchTerm" />
   <input type="checkbox" formControlName="showErrors" />
-  <input type="input" formControlName="v" />
   <div formGroupName="nested">
     <input type="input" formControlName="a" />
   </div>
+  <select formControlName="issues" multiple>
+    <option *ngFor="let item of [1, 2, 3]" [value]="item">{{ item }}</option>
+  </select>
   <button>Submit</button>
 </form>
 

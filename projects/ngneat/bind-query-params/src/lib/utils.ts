@@ -1,3 +1,4 @@
+import { FormGroup } from '@angular/forms';
 import { ParamDefType, QueryParamDef } from './types';
 
 export function parse(value: any, type: ParamDefType) {
@@ -7,7 +8,7 @@ export function parse(value: any, type: ParamDefType) {
     case 'boolean':
       return value === 'false' ? false : !!value;
     case 'array':
-      return value?.join(',');
+      return value?.split(',');
     case 'number':
       return +value;
     default:
@@ -15,17 +16,24 @@ export function parse(value: any, type: ParamDefType) {
   }
 }
 
-export function get(obj: object, path: string) {
-  return path.split('.').reduce((p, c) => (p && p[c]) || null, obj);
+export function get(obj: object, path: string): any {
+  let current = obj;
+  path.split('.').forEach((p) => (current = current[p]));
+
+  return current;
 }
 
-export function resolveParams(defs: QueryParamDef[], formValue: object) {
-  const params: Record<string, any> = {};
+export function resolveParams(defs: QueryParamDef[], formValue: object, group: FormGroup) {
+  const result = {};
 
-  for (const def of defs) {
-    const value = get(formValue, def.path as string);
-    params[def.queryKey as string] = Array.isArray(value) ? value.toString() : value;
-  }
+  defs.forEach((def) => {
+    const dirty = group.get(def.path).dirty;
 
-  return params;
+    if (dirty) {
+      const value = get(formValue, def.path as string);
+      result[def.queryKey] = value || typeof value === 'boolean' ? value.toString() : null;
+    }
+  });
+
+  return result;
 }
