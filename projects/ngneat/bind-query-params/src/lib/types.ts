@@ -9,6 +9,7 @@ type QueryParamParams<QueryParams = any> = {
   type?: ParamDefType;
   trigger?: 'change' | 'submit';
   strategy?: 'modelToUrl' | 'twoWay';
+  hasDefaultValue?: boolean;
 };
 
 export class QueryParamDef<QueryParams = any> {
@@ -32,6 +33,10 @@ export class QueryParamDef<QueryParams = any> {
 
   get strategy() {
     return this.config.strategy || 'twoWay';
+  }
+
+  get hasDefaultValue() {
+    return this.config.hasDefaultValue || false;
   }
 
   parse(queryParamValue: string) {

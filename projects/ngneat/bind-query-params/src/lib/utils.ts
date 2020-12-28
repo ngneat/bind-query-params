@@ -1,4 +1,5 @@
-import { ParamDefType } from './types';
+import { AbstractControl, FormGroup } from '@angular/forms';
+import { ParamDefType, QueryParamDef } from './types';
 
 export function parse(value: any, type: ParamDefType) {
   switch (type) {
@@ -42,4 +43,13 @@ export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOptio
 
 export function coerceArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
+}
+
+export function defsToParams(defs: QueryParamDef[], group: AbstractControl) {
+  return defs.map((def) => {
+    return {
+      queryKey: def.queryKey,
+      value: group.get(def.path).value,
+    };
+  });
 }

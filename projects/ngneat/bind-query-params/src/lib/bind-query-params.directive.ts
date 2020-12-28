@@ -5,8 +5,9 @@ import { merge, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import set from 'lodash.set';
 import { BindQueryParamsManager, BindQueryParamsOptions, BIND_QUERY_PARAMS_OPTIONS } from './types';
-import { resolveParams } from './utils';
+import { defsToParams, resolveParams } from './utils';
 
+// We don't use ther Router because we want to get the query params asap
 @Directive({
   selector: '[bindQueryParams]',
 })
@@ -46,14 +47,7 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
 
     if (onSubmitDefs.length) {
       (this.formGroupDirective as FormGroupDirective).ngSubmit.pipe(takeUntil(this.destroy)).subscribe(() => {
-        const params = onSubmitDefs.map((def) => {
-          return {
-            queryKey: def.queryKey,
-            value: this.group.get(def.path).value,
-          };
-        });
-
-        this.updateQueryParams(resolveParams(params));
+        this.updateQueryParams(resolveParams(defsToParams(onSubmitDefs, this.group)));
       });
     }
 
@@ -72,6 +66,12 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
         .subscribe((result) => {
           this.updateQueryParams(resolveParams(result));
         });
+    }
+
+    const defaultValueDefs = this.defs.filter((def) => def.hasDefaultValue && !queryParams.has(def.queryKey));
+
+    if (defaultValueDefs.length) {
+      this.updateQueryParams(resolveParams(defsToParams(defaultValueDefs, this.group)));
     }
   }
 
