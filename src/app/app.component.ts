@@ -27,9 +27,15 @@ export class AppComponent {
   });
 
   bindQueryParams = new BindQueryParamsManager<Params>([
-    { queryKey: 'searchTerm', trigger: 'submit' },
+    { queryKey: 'searchTerm' },
     { queryKey: 'showErrors', type: 'boolean' },
     { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
     { queryKey: 'nested', path: 'nested.a', trigger: 'submit' },
   ]);
+
+  patch() {
+    this.group.patchValue({
+      searchTerm: 'patched',
+    });
+  }
 }

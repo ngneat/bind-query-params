@@ -1,8 +1,8 @@
 <form [formGroup]="group" [bindQueryParams]="bindQueryParams">
-  <input type="text" formControlName="searchTerm" />
+  <input type="text" formControlName="searchTerm" placeholder="searchTerm" />
   <input type="checkbox" formControlName="showErrors" />
   <div formGroupName="nested">
-    <input type="input" formControlName="a" />
+    <input type="input" formControlName="a" placeholder="nested.a" />
   </div>
   <select formControlName="issues" multiple>
     <option *ngFor="let item of [1, 2, 3]" [value]="item">{{ item }}</option>
@@ -10,4 +10,5 @@
   <button>Submit</button>
 </form>
 
+<button (click)="patch()">Patch value</button>
 {{ group.value | json }}

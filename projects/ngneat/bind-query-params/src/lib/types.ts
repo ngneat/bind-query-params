@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { parse } from './utils';
+import { coerceArray, parse } from './utils';
 
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string';
 
@@ -42,19 +42,23 @@ export class QueryParamDef<QueryParams = any> {
 export class BindQueryParamsManager<T = any> {
   defs: QueryParamDef<T>[];
 
-  constructor(defs: QueryParamParams<T>[]) {
-    this.defs = defs.map((def) => new QueryParamDef(def));
+  constructor(defs: QueryParamParams<T>[] | QueryParamDef<T>) {
+    this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
   }
 
   getDef(queryKey: keyof T) {
     return this.defs.find((def) => def.queryKey === queryKey);
   }
 
-  parse(queryParams: Record<keyof T, string>) {
+  parse(queryParams: Partial<Record<keyof T, string>>) {
     const result = {};
 
     for (const [key, value] of Object.entries(queryParams)) {
-      result[key] = this.getDef(key as keyof T).parse(value as any);
+      const def = this.getDef(key as keyof T);
+
+      if (def) {
+        result[key] = this.getDef(key as keyof T).parse(value as any);
+      }
     }
 
     return result;

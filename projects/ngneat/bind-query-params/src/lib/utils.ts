@@ -1,5 +1,4 @@
-import { FormGroup } from '@angular/forms';
-import { ParamDefType, QueryParamDef } from './types';
+import { ParamDefType } from './types';
 
 export function parse(value: any, type: ParamDefType) {
   switch (type) {
@@ -23,17 +22,24 @@ export function get(obj: object, path: string): any {
   return current;
 }
 
-export function resolveParams(defs: QueryParamDef[], formValue: object, group: FormGroup) {
+interface ResolveParamsOption {
+  value: any;
+  queryKey: string;
+}
+
+export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOption) {
+  const toArray = coerceArray(params);
+
   const result = {};
 
-  defs.forEach((def) => {
-    const dirty = group.get(def.path).dirty;
-
-    if (dirty) {
-      const value = get(formValue, def.path as string);
-      result[def.queryKey] = value || typeof value === 'boolean' ? value.toString() : null;
-    }
+  toArray.forEach(({ value, queryKey }) => {
+    const isEmpty = value === null || value === undefined || !value.toString();
+    result[queryKey] = isEmpty ? null : value.toString();
   });
 
   return result;
+}
+
+export function coerceArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
 }

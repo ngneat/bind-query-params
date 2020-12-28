@@ -1,11 +1,11 @@
 import { Directive, Inject, Input, ModuleWithProviders, NgModule, OnDestroy, OnInit } from '@angular/core';
-import { ControlContainer, FormGroup, FormGroupDirective } from '@angular/forms';
+import { ControlContainer, FormGroupDirective } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { merge, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import set from 'lodash.set';
 import { BindQueryParamsManager, BindQueryParamsOptions, BIND_QUERY_PARAMS_OPTIONS } from './types';
-import { parse, resolveParams } from './utils';
+import { resolveParams } from './utils';
 
 @Directive({
   selector: '[bindQueryParams]',
@@ -46,14 +46,32 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
 
     if (onSubmitDefs.length) {
       (this.formGroupDirective as FormGroupDirective).ngSubmit.pipe(takeUntil(this.destroy)).subscribe(() => {
-        this.updateQueryParams(resolveParams(onSubmitDefs, this.group.value, this.group as FormGroup), true);
+        const params = onSubmitDefs.map((def) => {
+          return {
+            queryKey: def.queryKey,
+            value: this.group.get(def.path).value,
+          };
+        });
+
+        this.updateQueryParams(resolveParams(params));
       });
     }
 
     if (onChangeDefs.length) {
-      this.group.valueChanges.pipe(takeUntil(this.destroy)).subscribe((value) => {
-        this.updateQueryParams(resolveParams(onChangeDefs, value, this.group as FormGroup));
+      const controls = onChangeDefs.map((def) => {
+        return this.group.get(def.path).valueChanges.pipe(
+          map((value) => ({
+            value,
+            queryKey: def.queryKey,
+          }))
+        );
       });
+
+      merge(...controls)
+        .pipe(takeUntil(this.destroy))
+        .subscribe((result) => {
+          this.updateQueryParams(resolveParams(result));
+        });
     }
   }
 
@@ -65,11 +83,11 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
     this.destroy.next();
   }
 
-  private updateQueryParams(queryParams: object, replaceUrl = false) {
+  private updateQueryParams(queryParams: object) {
     this.router.navigate([], {
       queryParams,
       queryParamsHandling: 'merge',
-      replaceUrl,
+      replaceUrl: true,
     });
   }
 }
