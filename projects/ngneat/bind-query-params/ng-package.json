@@ -3,5 +3,6 @@
   "dest": "../../../dist/ngneat/bind-query-params",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "whitelistedNonPeerDependencies": ["lodash.set"]
 }
