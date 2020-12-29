@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { Subject } from 'rxjs';
 import { coerceArray, parse } from './utils';
 
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string';
@@ -9,7 +10,6 @@ type QueryParamParams<QueryParams = any> = {
   type?: ParamDefType;
   trigger?: 'change' | 'submit';
   strategy?: 'modelToUrl' | 'twoWay';
-  hasDefaultValue?: boolean;
 };
 
 export class QueryParamDef<QueryParams = any> {
@@ -35,16 +35,14 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.strategy || 'twoWay';
   }
 
-  get hasDefaultValue() {
-    return this.config.hasDefaultValue || false;
-  }
-
   parse(queryParamValue: string) {
     return parse(queryParamValue, this.type);
   }
 }
 
 export class BindQueryParamsManager<T = any> {
+  update = new Subject<void>();
+  update$ = this.update.asObservable();
   defs: QueryParamDef<T>[];
 
   constructor(defs: QueryParamParams<T>[] | QueryParamParams<T>) {
