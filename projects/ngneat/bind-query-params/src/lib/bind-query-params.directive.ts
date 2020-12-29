@@ -7,12 +7,12 @@ import set from 'lodash.set';
 import { BindQueryParamsManager, BindQueryParamsOptions, BIND_QUERY_PARAMS_OPTIONS } from './types';
 import { defsToParams, resolveParams } from './utils';
 
-// We don't use ther Router because we want to get the query params asap
+// We don't use the Router because we want to get the query params asap
 @Directive({
   selector: '[bindQueryParams]',
 })
 export class BindQueryParamsDirective implements OnInit, OnDestroy {
-  @Input('bindQueryParams') _defs: BindQueryParamsManager;
+  @Input('bindQueryParams') manager: BindQueryParamsManager;
 
   private destroy = new Subject();
 
@@ -23,7 +23,7 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
   ) {}
 
   get defs() {
-    return this._defs.defs;
+    return this.manager.defs;
   }
 
   ngOnInit() {
@@ -40,7 +40,9 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
       }
     }
 
-    this.group.patchValue(value);
+    if (Object.keys(value).length) {
+      this.group.patchValue(value);
+    }
 
     const onSubmitDefs = this.defs.filter((def) => def.trigger === 'submit');
     const onChangeDefs = this.defs.filter((def) => def.trigger === 'change');
@@ -67,12 +69,6 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
           this.updateQueryParams(resolveParams(result));
         });
     }
-
-    const defaultValueDefs = this.defs.filter((def) => def.hasDefaultValue && !queryParams.has(def.queryKey));
-
-    if (defaultValueDefs.length) {
-      this.updateQueryParams(resolveParams(defsToParams(defaultValueDefs, this.group)));
-    }
   }
 
   get group() {
@@ -84,6 +80,7 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
   }
 
   private updateQueryParams(queryParams: object) {
+    this.manager.update.next();
     this.router.navigate([], {
       queryParams,
       queryParamsHandling: 'merge',
