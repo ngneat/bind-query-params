@@ -1,8 +1,8 @@
 import { Directive, Inject, Input, ModuleWithProviders, NgModule, OnDestroy, OnInit } from '@angular/core';
 import { ControlContainer, FormGroupDirective } from '@angular/forms';
 import { Router } from '@angular/router';
-import { merge, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { merge, Subject, timer } from 'rxjs';
+import { auditTime, buffer, bufferTime, map, scan, takeUntil } from 'rxjs/operators';
 import set from 'lodash.set';
 import { BindQueryParamsManager, BindQueryParamsOptions, BIND_QUERY_PARAMS_OPTIONS } from './types';
 import { defsToParams, resolveParams } from './utils';
@@ -61,10 +61,22 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
         );
       });
 
+      // Could be a several changes in the same tick,
+      // for example when we use reset() or patchValue.
+      // We need to aggregate the changes and apply them at once
+      // because the router navigates in micro task
+
+      let buffer = [];
+
       merge(...controls)
-        .pipe(takeUntil(this.destroy))
-        .subscribe((result) => {
-          this.updateQueryParams(resolveParams(result));
+        .pipe(
+          map((result) => buffer.push(result)),
+          auditTime(0),
+          takeUntil(this.destroy)
+        )
+        .subscribe(() => {
+          this.updateQueryParams(resolveParams(buffer));
+          buffer = [];
         });
     }
 
@@ -84,7 +96,7 @@ export class BindQueryParamsDirective implements OnInit, OnDestroy {
   }
 
   private updateQueryParams(queryParams: object) {
-    this.router.navigate([], {
+    return this.router.navigate([], {
       queryParams,
       queryParamsHandling: 'merge',
       replaceUrl: true,

@@ -28,9 +28,9 @@ export class AppComponent {
 
   bindQueryParams = new BindQueryParamsManager<Params>([
     { queryKey: 'searchTerm' },
-    { queryKey: 'showErrors', type: 'boolean', hasDefaultValue: true },
-    { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
-    { queryKey: 'nested', path: 'nested.a', trigger: 'submit' },
+    { queryKey: 'showErrors', type: 'boolean' },
+    // { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
+    // { queryKey: 'nested', path: 'nested.a', trigger: 'submit' },
   ]);
 
   ngOnInit() {
@@ -41,7 +41,11 @@ export class AppComponent {
 
   patch() {
     this.group.patchValue({
-      searchTerm: 'patched',
+      searchTerm: null,
     });
+  }
+
+  reset() {
+    this.group.reset();
   }
 }

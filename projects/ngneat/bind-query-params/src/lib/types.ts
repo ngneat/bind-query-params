@@ -47,7 +47,7 @@ export class QueryParamDef<QueryParams = any> {
 export class BindQueryParamsManager<T = any> {
   defs: QueryParamDef<T>[];
 
-  constructor(defs: QueryParamParams<T>[] | QueryParamDef<T>) {
+  constructor(defs: QueryParamParams<T>[] | QueryParamParams<T>) {
     this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
   }
 
@@ -55,7 +55,7 @@ export class BindQueryParamsManager<T = any> {
     return this.defs.find((def) => def.queryKey === queryKey);
   }
 
-  parse(queryParams: Partial<Record<keyof T, string>>) {
+  parse(queryParams: Partial<T>) {
     const result = {};
 
     for (const [key, value] of Object.entries(queryParams)) {
