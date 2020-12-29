@@ -8,7 +8,6 @@ type QueryParamParams<QueryParams = any> = {
   queryKey: keyof QueryParams & string;
   path?: string;
   type?: ParamDefType;
-  trigger?: 'change' | 'submit';
   strategy?: 'modelToUrl' | 'twoWay';
 };
 
@@ -27,10 +26,6 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.type || 'string';
   }
 
-  get trigger() {
-    return this.config.trigger || 'change';
-  }
-
   get strategy() {
     return this.config.strategy || 'twoWay';
   }
@@ -41,8 +36,6 @@ export class QueryParamDef<QueryParams = any> {
 }
 
 export class BindQueryParamsManager<T = any> {
-  update = new Subject<void>();
-  update$ = this.update.asObservable();
   defs: QueryParamDef<T>[];
 
   constructor(defs: QueryParamParams<T>[] | QueryParamParams<T>) {
