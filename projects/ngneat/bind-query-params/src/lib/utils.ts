@@ -1,5 +1,5 @@
-import { AbstractControl, FormGroup } from '@angular/forms';
-import { ParamDefType, QueryParamDef } from './types';
+import { AbstractControl } from '@angular/forms';
+import { ParamDefType, QueryParamDef } from './services';
 
 export function parse(value: any, type: ParamDefType) {
   switch (type) {
