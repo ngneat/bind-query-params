@@ -1,66 +1,30 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
+import { Router } from '@angular/router';
+import { coerceArray, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
-import { coerceArray, parse, resolveParams } from './utils';
+import { BindQueryParamsOptions, QueryParamParams } from './types';
+import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
-
-export type ParamDefType = 'boolean' | 'array' | 'number' | 'string';
-
-type QueryParamParams<QueryParams = any> = {
-  queryKey: keyof QueryParams & string;
-  path?: string;
-  type?: ParamDefType;
-  strategy?: 'modelToUrl' | 'twoWay';
-};
-
-export class QueryParamDef<QueryParams = any> {
-  constructor(private config: QueryParamParams<QueryParams>) {}
-
-  get queryKey() {
-    return this.config.queryKey;
-  }
-
-  get path() {
-    return this.config.path || this.queryKey;
-  }
-
-  get type() {
-    return this.config.type || 'string';
-  }
-
-  get strategy() {
-    return this.config.strategy || 'twoWay';
-  }
-
-  parse(queryParamValue: string) {
-    return parse(queryParamValue, this.type);
-  }
-}
-
-@Injectable({ providedIn: 'root' })
-export class BindQueryParamsFactory {
-  constructor(private router: Router, @Inject(BIND_QUERY_PARAMS_OPTIONS) private options: BindQueryParamsOptions) {}
-
-  create<T>(defs: QueryParamParams<T>[] | QueryParamParams<T>, group: FormGroup): BindQueryParamsManager<T> {
-    return new BindQueryParamsManager<T>(this.router, this.options).connect(defs, group);
-  }
-}
 
 export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
   private group: FormGroup;
   private $destroy = new Subject();
 
-  connect(defs: QueryParamParams<T>[] | QueryParamParams<T>, group: FormGroup) {
-    this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
+  connect(group: FormGroup) {
     this.group = group;
     this.onInit();
     return this;
   }
 
-  constructor(private router: Router, private options: BindQueryParamsOptions) {}
+  constructor(
+    private router: Router,
+    defs: QueryParamParams<T>[] | QueryParamParams<T>,
+    private options: BindQueryParamsOptions
+  ) {
+    this.defs = coerceArray(this.defs).map((def) => new QueryParamDef(def));
+  }
 
   onInit() {
     const value = this.getInitialValue();
@@ -143,16 +107,3 @@ export class BindQueryParamsManager<T = any> {
     return value;
   }
 }
-
-export interface BindQueryParamsOptions {
-  windowRef: Window;
-}
-
-export const BIND_QUERY_PARAMS_OPTIONS = new InjectionToken('BIND_QUERY_PARAMS_OPTIONS', {
-  providedIn: 'root',
-  factory() {
-    return {
-      windowRef: window,
-    };
-  },
-});

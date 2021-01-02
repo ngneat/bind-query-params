@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BindQueryParamsFactory } from '@ngneat/bind-query-params';
-import { Observable } from 'rxjs';
-import { startWith, switchMap } from 'rxjs/operators';
+import { startWith } from 'rxjs/operators';
 
 interface Params {
   searchTerm: string;
@@ -35,15 +34,14 @@ export class AppComponent {
     ),
   });
 
-  bindQueryParams = this.factory.create<Params>(
-    [
+  bindQueryParams = this.factory
+    .create<Params>([
       { queryKey: 'searchTerm' },
       { queryKey: 'showErrors', type: 'boolean' },
       { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
       { queryKey: 'nested', path: 'nested.a' },
-    ],
-    this.group
-  );
+    ])
+    .connect(this.group);
 
   constructor(private factory: BindQueryParamsFactory) {}
 

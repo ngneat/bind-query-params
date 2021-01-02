@@ -1,5 +1,6 @@
 import { AbstractControl } from '@angular/forms';
-import { ParamDefType, QueryParamDef } from './services';
+import { ParamDefType } from './types';
+import { QueryParamDef } from './QueryParamDef';
 
 export function parse(value: any, type: ParamDefType) {
   switch (type) {
@@ -35,7 +36,7 @@ export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOptio
 
   toArray.forEach(({ value, queryKey }) => {
     const isEmpty = value === null || value === undefined || !value.toString();
-    result[queryKey] = isEmpty ? null : value.toString();
+    result[queryKey] = isEmpty ? null : value!.toString();
   });
 
   return result;
