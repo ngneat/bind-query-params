@@ -23,7 +23,7 @@ export class BindQueryParamsManager<T = any> {
     defs: QueryParamParams<T>[] | QueryParamParams<T>,
     private options: BindQueryParamsOptions
   ) {
-    this.defs = coerceArray(this.defs).map((def) => new QueryParamDef(def));
+    this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
   }
 
   onInit() {

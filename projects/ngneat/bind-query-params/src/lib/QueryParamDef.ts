@@ -20,7 +20,15 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.strategy || 'twoWay';
   }
 
+  get parser() {
+    return this.config.parser;
+  }
+
   parse(queryParamValue: string) {
+    if (this.parser) {
+      return this.parser(queryParamValue);
+    }
+
     return parse(queryParamValue, this.type);
   }
 }
