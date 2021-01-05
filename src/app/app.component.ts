@@ -34,7 +34,9 @@ export class AppComponent {
     ),
   });
 
-  bindQueryParams = this.factory
+  items = [];
+
+  private manager = this.factory
     .create<Params>([
       { queryKey: 'searchTerm' },
       { queryKey: 'showErrors', type: 'boolean' },
@@ -53,6 +55,11 @@ export class AppComponent {
     this.group.valueChanges.subscribe((v) => {
       console.log('group valueChanges', v);
     });
+
+    setTimeout(() => {
+      this.items = ['1', '2', '3'];
+      this.manager.syncDefs('issues');
+    }, 1000);
   }
 
   patch() {

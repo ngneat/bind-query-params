@@ -35,6 +35,7 @@ interface Params {
   nested: string;
   nestedarray: string;
   modelToUrl: string;
+  modelToUrl2: string;
   parser: string;
 }
 
@@ -47,6 +48,7 @@ class HomeComponent {
     showErrors: new FormControl(false),
     issues: new FormControl([]),
     modelToUrl: new FormControl([]),
+    modelToUrl2: new FormControl([]),
     a: new FormGroup({
       b: new FormControl(),
       c: new FormControl([]),
@@ -65,6 +67,7 @@ class HomeComponent {
       { queryKey: 'nestedarray', path: 'a.c', type: 'array' },
       { queryKey: 'parser', type: 'array', parser: (value) => value.split(',').map((v) => +v) },
       { queryKey: 'modelToUrl', type: 'array', strategy: 'modelToUrl' },
+      { queryKey: 'modelToUrl2', type: 'array', strategy: 'modelToUrl' },
     ])
     .connect(this.group);
 }
@@ -87,6 +90,10 @@ describe('BindQueryParams', () => {
         },
       },
     ],
+  });
+
+  afterEach(() => {
+    spectator.component.bindQueryParams.destroy();
   });
 
   describe('BindQueryParams', () => {
@@ -254,6 +261,50 @@ describe('BindQueryParams', () => {
 
         assertRouterCall(spectator, { issues: '1,2,3', searchTerm: 'new', showErrors: 'true' });
       }));
+    });
+
+    describe('syncDefs', () => {
+      it('should sync the control value based on the query param value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams('modelToUrl=1,2,3')],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+          })
+        );
+      });
+
+      it('should sync the controls values based on the query params value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams('modelToUrl=1,2,3&modelToUrl2=1,2')],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+            modelToUrl2: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs(['modelToUrl', 'modelToUrl2']);
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+            modelToUrl2: ['1', '2'],
+          })
+        );
+      });
     });
   });
 });

@@ -27,11 +27,7 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    const value = this.getInitialValue();
-
-    if (Object.keys(value).length) {
-      this.group.patchValue(value);
-    }
+    this.updateControl(this.defs, (def) => def.strategy === 'twoWay');
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path).valueChanges.pipe(
@@ -82,6 +78,11 @@ export class BindQueryParamsManager<T = any> {
     return result;
   }
 
+  syncDefs(queryKeys: (keyof T & string) | (keyof T & string)[]) {
+    const defs = coerceArray(queryKeys).map((key) => this.getDef(key as keyof T));
+    this.updateControl(defs);
+  }
+
   private updateQueryParams(queryParams: object) {
     this.router.navigate([], {
       queryParams,
@@ -90,12 +91,12 @@ export class BindQueryParamsManager<T = any> {
     });
   }
 
-  private getInitialValue() {
+  private updateControl(defs: QueryParamDef[], updatePredicate = (def: QueryParamDef) => true) {
     const queryParams = new URLSearchParams(this.options.windowRef.location.search);
     let value = {};
 
-    for (const def of this.defs) {
-      if (def.strategy === 'twoWay') {
+    for (const def of defs) {
+      if (updatePredicate(def)) {
         const queryKey = def.queryKey;
 
         if (queryParams.has(queryKey as string)) {
@@ -104,6 +105,8 @@ export class BindQueryParamsManager<T = any> {
       }
     }
 
-    return value;
+    if (Object.keys(value).length) {
+      this.group.patchValue(value);
+    }
   }
 }

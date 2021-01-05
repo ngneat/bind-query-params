@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BindQueryParamsManager } from './BindQueryParamsManager';
-import { BIND_QUERY_PARAMS_OPTIONS } from '@ngneat/bind-query-params';
+import { BIND_QUERY_PARAMS_OPTIONS } from './options';
 import { BindQueryParamsOptions, QueryParamParams } from './types';
 
 @Injectable({ providedIn: 'root' })

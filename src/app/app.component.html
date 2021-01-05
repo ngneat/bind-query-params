@@ -5,7 +5,7 @@
     <input type="input" formControlName="a" placeholder="nested.a" />
   </div>
   <select formControlName="issues" multiple>
-    <option *ngFor="let item of [1, 2, 3]" [value]="item">{{ item }}</option>
+    <option *ngFor="let item of items" [value]="item">{{ item }}</option>
   </select>
   <button>Submit</button>
 </form>
