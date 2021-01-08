@@ -15,7 +15,7 @@
 
 > Sync URL Query Params with Angular Form Controls
 
-The library provides a simple and reusable solution for binding URL query params to Angular Forms.
+The library provides a simple and reusable solution for binding URL query params to Angular Forms
 
 ## Installation
 
