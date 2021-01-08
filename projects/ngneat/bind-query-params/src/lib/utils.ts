@@ -12,6 +12,8 @@ export function parse(value: any, type: ParamDefType) {
       return value?.split(',');
     case 'number':
       return +value;
+    case 'object':
+      return JSON.parse(value);
     default:
       return value;
   }

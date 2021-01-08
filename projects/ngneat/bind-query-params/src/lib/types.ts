@@ -1,4 +1,4 @@
-export type ParamDefType = 'boolean' | 'array' | 'number' | 'string';
+export type ParamDefType = 'boolean' | 'array' | 'number' | 'string' | 'object';
 
 export type QueryParamParams<QueryParams = any> = {
   queryKey: keyof QueryParams & string;

@@ -1,6 +1,7 @@
 {
   "name": "@ngneat/bind-query-params",
-  "version": "1.0.0",
+  "version": "1.2.0",
+  "description": "Sync URL Query Params with Angular Form Controls",
   "dependencies": {
     "tslib": "^2.0.0",
     "lodash.set": "4.3.2"
@@ -8,9 +9,17 @@
   "keywords": [
     "angular",
     "angular 2",
-    "bind-query-params"
+    "bind-query-params",
+    "query params",
+    "sync query params to angular forms",
+    "angular forms to query params",
+    "query params to angular forms"
   ],
   "license": "MIT",
+  "author": {
+    "name": "Netanel Basal",
+    "url": "https://netbasal.com"
+  },
   "publishConfig": {
     "access": "public"
   },
