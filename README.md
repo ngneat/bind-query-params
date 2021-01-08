@@ -85,7 +85,9 @@ Before updating the control with the value, the manager will parse it based on t
 
 Provide a custom parser. For example, the default `array` parser converts the value to an `array` of strings. If we need it to be an array of numbers, we can pass the following `parser`:
 
-`{ parser: value => value.split(',').map(v => +v ) }`
+```ts
+const def = { parser: (value) => value.split(',').map((v) => +v) };
+```
 
 ### `strategy`
 
