@@ -11,7 +11,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
 [![ngneat](https://img.shields.io/badge/@-ngneat-383636?style=flat-square&labelColor=8f68d4)](https://github.com/ngneat/)
 [![spectator](https://img.shields.io/badge/tested%20with-spectator-2196F3.svg?style=flat-square)]()
-![.github/workflows/test.yml](https://github.com/ngneat/bind-query-params/workflows/.github/workflows/ci.yml/badge.svg?branch=master)
+![CI](https://github.com/ngneat/bind-query-params/workflows/Bind%20query%20params/badge.svg?branch=master)
 
 > Sync URL Query Params with Angular Form Controls
 
