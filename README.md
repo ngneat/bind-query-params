@@ -12,46 +12,125 @@
 [![ngneat](https://img.shields.io/badge/@-ngneat-383636?style=flat-square&labelColor=8f68d4)](https://github.com/ngneat/)
 [![spectator](https://img.shields.io/badge/tested%20with-spectator-2196F3.svg?style=flat-square)]()
 
-> The Library Slogan
+> Sync URL Query Params with Angular Form Controls
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid assumenda atque blanditiis cum delectus eligendi ipsam iste iure, maxime modi molestiae nihil obcaecati odit officiis pariatur quibusdam suscipit temporibus unde.
-Accusantium aliquid corporis cupiditate dolores eum exercitationem illo iure laborum minus nihil numquam odit officiis possimus quas quasi quos similique, temporibus veritatis? Exercitationem, iure magni nulla quo sapiente soluta. Esse?
-
-## Features
-
-- ✅ One
-- ✅ Two
-- ✅ Three
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [FAQ](#faq)
+The library provides a simple and reusable solution for binding URL query params to Angular Forms.
 
 ## Installation
 
-### NPM
-
-`npm install @ngneat/bind-query-params --save-dev`
-
-### Yarn
-
-`yarn add @ngneat/bind-query-params --dev`
+`npm install @ngneat/bind-query-params`
 
 ## Usage
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid assumenda atque blanditiis cum delectus eligendi ipsam iste iure, maxime modi molestiae nihil obcaecati odit officiis pariatur quibusdam suscipit temporibus unde.
+Inject the `BindQueryParamsFactory` provider, pass an array of [defenitions](#QueryParamDefenition) and `connect` it to your form:
 
+<!-- prettier-ignore -->
 ```ts
-function helloWorld() {}
+import { BindQueryParamsFactory } from '@ngneat/bind-query-params';
+
+interface Filters {
+  searchTerm: string;
+  someBoolean: boolean;
+}
+
+@Component({
+  template: `Your normal form setup`,
+})
+export class MyComponent {
+  filters = new FormGroup({
+    searchTerm: new FormControl(),
+    someBoolean: new FormControl(false),
+  });
+
+  bindQueryParamsManager = this.factory
+    .create<Filters>([
+      { queryKey: 'searchTerm' },
+      { queryKey: 'someBoolean', type: 'boolean' }
+     ]).connect(this.filters);
+
+  constructor(private factory: BindQueryParamsFactory) {}
+
+  ngOnDestroy() {
+    this.bindQueryParamsManager.destroy();
+  }
+}
 ```
 
-## FAQ
+With this setup, the `manager` will take care of two things:
 
-## How to ...
+1. Update the `control`'s value when the page is loaded for the first time
+2. Update the URL query parameter when the corresponding `control` value changes
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid assumenda atque blanditiis cum delectus eligendi ips
+## QueryParam Defenition
+
+### `queryKey`
+
+The query parameter key
+
+### `path`
+
+The form control path. If it is not specified, the manager assumes that the `path` is the `queryKey`. We can also pass nested keys, for example, `person.name`:
+
+```ts
+{ queryKey: 'name', path: 'person.name' }
+```
+
+### `type`
+
+Specify the control value type. Available options are:
+`string`, `boolean`, `array`.
+Before updating the control with the value, the manager will parse it based on the provided `type`.
+
+### `parser`
+
+Provide a custom parser. For example, the default `array` parser converts the value to an `array` of strings. If we need it to be an array of numbers, we can pass the following `parser`:
+
+`{ parser: value => value.split(',').map(v => +v ) }`
+
+### `strategy`
+
+When working with async control values, for example, a dropdown list that its options come from the server, we cannot immediately update the control.
+
+In this cases, we can provide the `modelToUrl` strategy, that will not update the control value when the page loads. When the data is available we can call the `manager.syncDefs()` method that'll update the provided keys based on the current query params:
+
+```ts
+@Component()
+export class MyComponent {
+  filters = new FormGroup({
+    searchTerm: new FormControl(),
+    users: new FormControl([]),
+    someBoolean: new FormControl(false),
+  });
+
+  bindQueryParamsManager = this.factory
+    .create<Filters>([
+      { queryKey: 'searchTerm' },
+      { queryKey: 'someBoolean', type: 'boolean' },
+      { queryKey: 'users', type: 'array', strategy: 'modelToUrl' },
+    ])
+    .connect(this.filters);
+
+  constructor(private factory: BindQueryParamsFactory) {}
+
+  ngOnInit() {
+    service.getUsers().subscribe((users) => {
+      // Initalize the dropdown
+      this.users = users;
+      this.manager.syncDefs('users');
+    });
+  }
+
+  ngOnDestroy() {
+    this.bindQueryParamsManager.destroy();
+  }
+}
+```
+
+Note that `syncDefs` will always be called once under the hood.
+
+## Browser Support
+
+The library uses the [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) API, which supported in any browser except IE.
 
 ## Contributors ✨
 
@@ -60,7 +139,13 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
-<!-- markdownlint-enable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://www.netbasal.com/"><img src="https://avatars1.githubusercontent.com/u/6745730?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Netanel Basal</b></sub></a><br /><a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Code">💻</a> <a href="#content-NetanelBasal" title="Content">🖋</a> <a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Documentation">📖</a> <a href="#ideas-NetanelBasal" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-NetanelBasal" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
