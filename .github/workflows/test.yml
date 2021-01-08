@@ -22,15 +22,6 @@ jobs:
         with:
           node-version: 12.12
 
-      - name: Install dependencies
-        # If checksum for the `package-lock.json` hasn't changed then we shouldn't run
-        # `npm ci` because it will hit the `postinstall` hook
-        # that will run `ngcc` compiler accordingly.
-        if: steps.npm-cache.outputs.cache-hit != 'true'
-        env:
-          HUSKY_SKIP_INSTALL: 'true'
-          run: npm ci
-
       - name: Run unit tests
         run: npm run test:lib:headless
 
