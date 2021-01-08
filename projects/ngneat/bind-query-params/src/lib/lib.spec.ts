@@ -264,10 +264,12 @@ describe('BindQueryParams', () => {
     });
 
     describe('syncDefs', () => {
-      it('should sync the control value based on the query param value', () => {
+      it('should sync the control value ONCE based on the query param value', () => {
         spectator = createComponent({
           providers: [stubQueryParams('modelToUrl=1,2,3')],
         });
+
+        spyOn(spectator.component.group, 'patchValue').and.callThrough();
 
         expect(spectator.component.group.value).toEqual(
           jasmine.objectContaining({
@@ -282,6 +284,11 @@ describe('BindQueryParams', () => {
             modelToUrl: ['1', '2', '3'],
           })
         );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+
+        expect(spectator.component.group.patchValue).toHaveBeenCalledTimes(1);
       });
 
       it('should sync the controls values based on the query params value', () => {

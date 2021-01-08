@@ -11,6 +11,7 @@ export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
   private group: FormGroup;
   private $destroy = new Subject();
+  private defsSynced = false;
 
   connect(group: FormGroup) {
     this.group = group;
@@ -79,8 +80,11 @@ export class BindQueryParamsManager<T = any> {
   }
 
   syncDefs(queryKeys: (keyof T & string) | (keyof T & string)[]) {
-    const defs = coerceArray(queryKeys).map((key) => this.getDef(key as keyof T));
-    this.updateControl(defs);
+    if (!this.defsSynced) {
+      const defs = coerceArray(queryKeys).map((key) => this.getDef(key as keyof T));
+      this.updateControl(defs);
+      this.defsSynced = true;
+    }
   }
 
   private updateQueryParams(queryParams: object) {
