@@ -94,7 +94,7 @@ const def = { parser: (value) => value.split(',').map((v) => +v) };
 
 When working with async control values, for example, a dropdown list that its options come from the server, we cannot immediately update the control.
 
-In this cases, we can provide the `modelToUrl` strategy, that will not update the control value when the page loads. When the data is available we can call the `manager.syncDefs()` method that'll update the provided keys based on the current query params:
+In this cases, we can provide the `modelToUrl` strategy, that will not update the control value when the page loads. When the data is available we can call the `manager.syncDefs()` method that'll update the controls based on the current query params:
 
 ```ts
 @Component()
