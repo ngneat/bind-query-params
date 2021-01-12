@@ -4,8 +4,6 @@
 
 <br />
 
-<img src="./demo.gif">
-
 [![MIT](https://img.shields.io/packagist/l/doctrine/orm.svg?style=flat-square)]()
 [![commitizen](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)]()
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)]()
@@ -18,6 +16,10 @@
 > Sync URL Query Params with Angular Form Controls
 
 The library provides a simple and reusable solution for binding URL query params to Angular Forms
+
+## Demo
+
+<img src="./demo.gif">
 
 ## Installation
 
