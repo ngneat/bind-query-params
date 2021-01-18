@@ -11,7 +11,7 @@ export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
   private group: FormGroup;
   private $destroy = new Subject();
-  private defsSynced = false;
+  private defsSynced: Record<keyof T, boolean> = {} as Record<keyof T, boolean>;
 
   connect(group: FormGroup) {
     this.group = group;
@@ -28,7 +28,7 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    this.updateControl(this.defs, (def) => def.strategy === 'twoWay');
+    this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path).valueChanges.pipe(
@@ -79,11 +79,21 @@ export class BindQueryParamsManager<T = any> {
     return result;
   }
 
-  syncDefs(queryKeys: (keyof T & string) | (keyof T & string)[]) {
-    if (!this.defsSynced) {
-      const defs = coerceArray(queryKeys).map((key) => this.getDef(key as keyof T));
-      this.updateControl(defs);
-      this.defsSynced = true;
+  syncDefs(
+    queryKeys: (keyof T & string) | (keyof T & string)[],
+    options: { emitEvent: boolean } = { emitEvent: true }
+  ) {
+    const defs = [];
+
+    coerceArray(queryKeys).forEach((key) => {
+      if (!this.defsSynced[key]) {
+        this.defsSynced[key] = true;
+        defs.push(this.getDef(key as keyof T));
+      }
+    });
+
+    if (defs.length) {
+      this.updateControl(defs, options);
     }
   }
 
@@ -95,7 +105,11 @@ export class BindQueryParamsManager<T = any> {
     });
   }
 
-  private updateControl(defs: QueryParamDef[], updatePredicate = (def: QueryParamDef) => true) {
+  private updateControl(
+    defs: QueryParamDef[],
+    options: { emitEvent: boolean },
+    updatePredicate = (def: QueryParamDef) => true
+  ) {
     const queryParams = new URLSearchParams(this.options.windowRef.location.search);
     let value = {};
 
@@ -110,7 +124,7 @@ export class BindQueryParamsManager<T = any> {
     }
 
     if (Object.keys(value).length) {
-      this.group.patchValue(value);
+      this.group.patchValue(value, options);
     }
   }
 }

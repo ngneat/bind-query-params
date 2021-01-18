@@ -312,6 +312,35 @@ describe('BindQueryParams', () => {
           })
         );
       });
+
+      it('should allow sync different controls in different times', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams('modelToUrl=1,2,3&modelToUrl2=1,2')],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+            modelToUrl2: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl2');
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl2: ['1', '2'],
+          })
+        );
+      });
     });
   });
 });
