@@ -27,7 +27,7 @@ The library provides a simple and reusable solution for binding URL query params
 
 ## Usage
 
-Inject the `BindQueryParamsFactory` provider, pass an array of [defenitions](#QueryParamDefenition) and `connect` it to your form:
+Inject the `BindQueryParamsFactory` provider, pass an array of [definitions](#QueryParamDefinition) and `connect` it to your form:
 
 <!-- prettier-ignore -->
 ```ts
@@ -66,7 +66,7 @@ With this setup, the `manager` will take care of two things:
 1. Update the `control`'s value when the page is loaded for the first time
 2. Update the URL query parameter when the corresponding `control` value changes
 
-## QueryParam Defenition
+## QueryParam Definition
 
 ### `queryKey`
 
