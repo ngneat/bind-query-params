@@ -122,7 +122,7 @@ export class BindQueryParamsManager<T = any> {
         const { queryKey } = def;
 
         if (queryParams.has(queryKey)) {
-          set(value, def.path, def.parse(queryParams.get(queryKey)));
+          set(value, def.path.split('.'), def.parse(queryParams.get(queryKey)));
         }
       }
     }
