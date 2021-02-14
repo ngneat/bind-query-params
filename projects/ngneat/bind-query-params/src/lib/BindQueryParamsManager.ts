@@ -97,6 +97,10 @@ export class BindQueryParamsManager<T = any> {
     }
   }
 
+  paramExists(queryKey: keyof T): boolean {
+    return new URLSearchParams(this.options.windowRef.location.search).has(queryKey as string);
+  }
+
   private updateQueryParams(queryParams: object) {
     this.router.navigate([], {
       queryParams,

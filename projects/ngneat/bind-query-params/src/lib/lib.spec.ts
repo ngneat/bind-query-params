@@ -97,6 +97,20 @@ describe('BindQueryParams', () => {
   });
 
   describe('BindQueryParams', () => {
+    describe('isActive', () => {
+      it('should return whether the URL contains the provided key', fakeAsync(() => {
+        spectator = createComponent({
+          providers: [stubQueryParams('searchTerm=term')],
+        });
+
+        const active = spectator.component.bindQueryParams.paramExists('searchTerm');
+        expect(active).toBeTrue();
+
+        const notActive = spectator.component.bindQueryParams.paramExists('showErrors');
+        expect(notActive).toBeFalse();
+      }));
+    });
+
     describe('string', () => {
       it('control => query', fakeAsync(() => {
         spectator = createComponent();
