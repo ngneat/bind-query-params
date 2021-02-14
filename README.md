@@ -94,6 +94,14 @@ Provide a custom parser. For example, the default `array` parser converts the va
 const def = { parser: (value) => value.split(',').map((v) => +v) };
 ```
 
+### `serializer`
+
+Provide a custom serializer. For example, supposing that we have a `FormControl` that carries a Date and we want to persist, in the query params, a custom value, such as a `string` Date, we can do something like the following `serializer`:
+
+```ts
+const def = { serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as string)) };
+```
+
 ### `strategy`
 
 When working with async control values, for example, a dropdown list that its options come from the server, we cannot immediately update the control.

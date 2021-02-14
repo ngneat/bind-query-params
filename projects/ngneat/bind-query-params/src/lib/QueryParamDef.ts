@@ -24,6 +24,10 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.parser;
   }
 
+  get serializer() {
+    return this.config.serializer;
+  }
+
   parse(queryParamValue: string) {
     if (this.parser) {
       return this.parser(queryParamValue);
