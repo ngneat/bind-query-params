@@ -27,8 +27,8 @@ export function get(obj: object, path: string): any {
 }
 
 interface ResolveParamsOption {
+  def: QueryParamDef;
   value: any;
-  queryKey: string;
 }
 
 export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOption) {
@@ -36,9 +36,9 @@ export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOptio
 
   const result = {};
 
-  toArray.forEach(({ value, queryKey }) => {
-    const isEmpty = value === null || value === undefined || !value.toString();
-    result[queryKey] = isEmpty ? null : value!.toString();
+  toArray.forEach(({ def: { queryKey, serializer }, value }) => {
+    const serializedValue = serializer?.(value) || value?.toString();
+    result[queryKey] = serializedValue || null;
   });
 
   return result;

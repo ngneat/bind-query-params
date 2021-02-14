@@ -37,6 +37,7 @@ interface Params {
   modelToUrl: string;
   modelToUrl2: string;
   parser: string;
+  serializer: Date;
 }
 
 @Component({
@@ -54,6 +55,7 @@ class HomeComponent {
       c: new FormControl([]),
     }),
     parser: new FormControl([]),
+    serializer: new FormControl(),
   });
 
   constructor(private factory: BindQueryParamsFactory) {}
@@ -66,6 +68,11 @@ class HomeComponent {
       { queryKey: 'nested', path: 'a.b' },
       { queryKey: 'nestedarray', path: 'a.c', type: 'array' },
       { queryKey: 'parser', type: 'array', parser: (value) => value.split(',').map((v) => +v) },
+      {
+        queryKey: 'serializer',
+        parser: (value) => new Date(value),
+        serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as string)),
+      },
       { queryKey: 'modelToUrl', type: 'array', strategy: 'modelToUrl' },
       { queryKey: 'modelToUrl2', type: 'array', strategy: 'modelToUrl' },
     ])
@@ -258,6 +265,20 @@ describe('BindQueryParams', () => {
             parser: [1, 2, 3],
           })
         );
+      });
+
+      describe('Custom serializer', () => {
+        it('should allow custom serializer', fakeAsync(() => {
+          spectator = createComponent();
+
+          spectator.component.group.patchValue({
+            serializer: new Date('2012-10-10'),
+          });
+
+          tick();
+
+          assertRouterCall(spectator, { serializer: '2012-10-10' });
+        }));
       });
     });
 
