@@ -33,8 +33,8 @@ export class BindQueryParamsManager<T = any> {
     const controls = this.defs.map((def) => {
       return this.group.get(def.path).valueChanges.pipe(
         map((value) => ({
+          def,
           value,
-          queryKey: def.queryKey,
         }))
       );
     });
@@ -72,7 +72,7 @@ export class BindQueryParamsManager<T = any> {
       const def = this.getDef(key as keyof T);
 
       if (def) {
-        result[key] = this.getDef(key as keyof T).parse(value as any);
+        result[key] = def.parse(value as string);
       }
     }
 
@@ -108,16 +108,16 @@ export class BindQueryParamsManager<T = any> {
   private updateControl(
     defs: QueryParamDef[],
     options: { emitEvent: boolean },
-    updatePredicate = (def: QueryParamDef) => true
+    updatePredicate = (_: QueryParamDef) => true
   ) {
     const queryParams = new URLSearchParams(this.options.windowRef.location.search);
     let value = {};
 
     for (const def of defs) {
       if (updatePredicate(def)) {
-        const queryKey = def.queryKey;
+        const { queryKey } = def;
 
-        if (queryParams.has(queryKey as string)) {
+        if (queryParams.has(queryKey)) {
           set(value, def.path, def.parse(queryParams.get(queryKey)));
         }
       }
