@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/ngneat/bind-query-params/compare/v1.4.0...v1.5.0) (2021-02-14)
+
+
+### Features
+
+* add serializer option ([165d36c](https://github.com/ngneat/bind-query-params/commit/165d36c508bfc4d08b31af7595f0ce54a3bbbd16))
+
 ## [1.4.0](https://github.com/ngneat/bind-query-params/compare/v1.3.0...v1.4.0) (2021-02-14)
 
 
