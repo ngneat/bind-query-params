@@ -30,6 +30,7 @@ function assertRouterCall(spectator, queryParams) {
 
 interface Params {
   searchTerm: string;
+  'withBrackets[gte]': string;
   showErrors: boolean;
   issues: string;
   nested: string;
@@ -46,6 +47,7 @@ interface Params {
 class HomeComponent {
   group = new FormGroup({
     searchTerm: new FormControl(),
+    'withBrackets[gte]': new FormControl(),
     showErrors: new FormControl(false),
     issues: new FormControl([]),
     modelToUrl: new FormControl([]),
@@ -63,6 +65,7 @@ class HomeComponent {
   bindQueryParams = this.factory
     .create<Params>([
       { queryKey: 'searchTerm' },
+      { queryKey: 'withBrackets[gte]' },
       { queryKey: 'showErrors', type: 'boolean' },
       { queryKey: 'issues', type: 'array' },
       { queryKey: 'nested', path: 'a.b' },
@@ -131,6 +134,18 @@ describe('BindQueryParams', () => {
         assertRouterCall(spectator, { searchTerm: 'term' });
       }));
 
+      it('control => query (with a key that has brackets)', fakeAsync(() => {
+        spectator = createComponent();
+
+        spectator.component.group.patchValue({
+          'withBrackets[gte]': 'aa',
+        });
+
+        tick();
+
+        assertRouterCall(spectator, { 'withBrackets[gte]': 'aa' });
+      }));
+
       it('query => control', () => {
         spectator = createComponent({
           providers: [stubQueryParams('searchTerm=term')],
@@ -139,6 +154,18 @@ describe('BindQueryParams', () => {
         expect(spectator.component.group.value).toEqual(
           jasmine.objectContaining({
             searchTerm: 'term',
+          })
+        );
+      });
+
+      it('query => control (with a key that has brackets)', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams('withBrackets[gte]=bb')],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            'withBrackets[gte]': 'bb',
           })
         );
       });
@@ -266,20 +293,20 @@ describe('BindQueryParams', () => {
           })
         );
       });
+    });
 
-      describe('Custom serializer', () => {
-        it('should allow custom serializer', fakeAsync(() => {
-          spectator = createComponent();
+    describe('Custom serializer', () => {
+      it('should allow custom serializer', fakeAsync(() => {
+        spectator = createComponent();
 
-          spectator.component.group.patchValue({
-            serializer: new Date('2012-10-10'),
-          });
+        spectator.component.group.patchValue({
+          serializer: new Date('2012-10-10'),
+        });
 
-          tick();
+        tick();
 
-          assertRouterCall(spectator, { serializer: '2012-10-10' });
-        }));
-      });
+        assertRouterCall(spectator, { serializer: '2012-10-10' });
+      }));
     });
 
     describe('Multiple updates', () => {
