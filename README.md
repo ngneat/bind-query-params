@@ -83,7 +83,7 @@ The form control path. If it is not specified, the manager assumes that the `pat
 ### `type`
 
 Specify the control value type. Available options are:
-`string`, `boolean`, `array`.
+`boolean`, `array`, `number`, `string` and `object`.
 Before updating the control with the value, the manager will parse it based on the provided `type`.
 
 ### `parser`
