@@ -34,7 +34,7 @@ export class AppComponent {
     ),
   });
 
-  items = [];
+  items: string[] = [];
 
   private manager = this.factory
     .create<Params>([
