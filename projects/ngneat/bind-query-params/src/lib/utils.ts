@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { ParamDefType } from './types';
+import { ParamDefType, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 
 export function parse(value: any, type: ParamDefType) {
@@ -19,22 +19,17 @@ export function parse(value: any, type: ParamDefType) {
   }
 }
 
-export function get(obj: object, path: string): any {
+export function get(obj: Record<string, any>, path: string): any {
   let current = obj;
   path.split('.').forEach((p) => (current = current[p]));
 
   return current;
 }
 
-interface ResolveParamsOption {
-  def: QueryParamDef;
-  value: any;
-}
-
-export function resolveParams(params: ResolveParamsOption[] | ResolveParamsOption) {
+export function resolveParams(params: ResolveParamsOption | ResolveParamsOption[]) {
   const toArray = coerceArray(params);
 
-  const result = {};
+  const result: Record<string, string> = {};
 
   toArray.forEach(({ def: { queryKey, serializer }, value }) => {
     const serializedValue = serializer?.(value) || value?.toString();
@@ -52,7 +47,7 @@ export function defsToParams(defs: QueryParamDef[], group: AbstractControl) {
   return defs.map((def) => {
     return {
       queryKey: def.queryKey,
-      value: group.get(def.path).value,
+      value: group.get(def.path)!.value,
     };
   });
 }

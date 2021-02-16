@@ -3,13 +3,13 @@ import { merge, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
-import { BindQueryParamsOptions, QueryParamParams } from './types';
+import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
 
 export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
-  private group: FormGroup;
+  private group!: FormGroup;
   private $destroy = new Subject();
   private defsSynced: Record<keyof T, boolean> = {} as Record<keyof T, boolean>;
 
@@ -31,7 +31,7 @@ export class BindQueryParamsManager<T = any> {
     this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
 
     const controls = this.defs.map((def) => {
-      return this.group.get(def.path).valueChanges.pipe(
+      return this.group.get(def.path)!.valueChanges.pipe(
         map((value) => ({
           def,
           value,
@@ -43,7 +43,7 @@ export class BindQueryParamsManager<T = any> {
     // for example when we use reset() or patchValue.
     // We need to aggregate the changes and apply them at once
     // because the router navigates in micro task
-    let buffer = [];
+    let buffer: ResolveParamsOption[] = [];
 
     merge(...controls)
       .pipe(
@@ -66,7 +66,7 @@ export class BindQueryParamsManager<T = any> {
   }
 
   parse(queryParams: Partial<T>) {
-    const result = {};
+    const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(queryParams)) {
       const def = this.getDef(key as keyof T);
@@ -83,12 +83,16 @@ export class BindQueryParamsManager<T = any> {
     queryKeys: (keyof T & string) | (keyof T & string)[],
     options: { emitEvent: boolean } = { emitEvent: true }
   ) {
-    const defs = [];
+    const defs: QueryParamDef<T>[] = [];
 
     coerceArray(queryKeys).forEach((key) => {
       if (!this.defsSynced[key]) {
         this.defsSynced[key] = true;
-        defs.push(this.getDef(key as keyof T));
+        const def = this.getDef(key as keyof T);
+
+        if (def) {
+          defs.push(def);
+        }
       }
     });
 
@@ -115,15 +119,16 @@ export class BindQueryParamsManager<T = any> {
     updatePredicate = (_: QueryParamDef) => true
   ) {
     const queryParams = new URLSearchParams(this.options.windowRef.location.search);
-    let value = {};
+    let value: Partial<T> = {};
 
     for (const def of defs) {
       if (updatePredicate(def)) {
         const { queryKey } = def;
+        const queryDef = queryParams.get(queryKey);
 
-        if (queryParams.has(queryKey)) {
-          set(value, def.path.split('.'), def.parse(queryParams.get(queryKey)));
-        }
+        if (!queryDef) continue;
+
+        set(value, def.path.split('.'), def.parse(queryDef));
       }
     }
 

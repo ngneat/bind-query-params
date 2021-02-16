@@ -18,7 +18,7 @@ function stubQueryParams(params: string) {
   };
 }
 
-function assertRouterCall(spectator, queryParams) {
+function assertRouterCall(spectator: Spectator<HomeComponent>, queryParams: Record<string, unknown>) {
   expect(spectator.inject(Router).navigate).toHaveBeenCalledOnceWith([], {
     queryParams,
     queryParamsHandling: 'merge',
