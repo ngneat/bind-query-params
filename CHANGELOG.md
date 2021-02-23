@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/ngneat/bind-query-params/compare/v1.5.0...v1.5.1) (2021-02-23)
+
+
+### Bug Fixes
+
+* properly handle keys with brackets ([cf2f6a9](https://github.com/ngneat/bind-query-params/commit/cf2f6a9bf6058a1cccfc50be14b8ecec274a0456))
+
 ## [1.5.0](https://github.com/ngneat/bind-query-params/compare/v1.4.0...v1.5.0) (2021-02-14)
 
 
