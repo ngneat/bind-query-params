@@ -2,7 +2,7 @@ import { FormGroup } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, takeUntil } from 'rxjs/operators';
+import { auditTime, debounceTime, filter, map, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -31,7 +31,20 @@ export class BindQueryParamsManager<T = any> {
     this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
 
     const controls = this.defs.map((def) => {
-      return this.group.get(def.path)!.valueChanges.pipe(
+      const control = this.group.get(def.path)!;
+      return control.valueChanges.pipe(
+        debounceTime(0),
+        filter(() => {
+          if (this.options.ignoreInvalidForm) {
+            return this.group.valid;
+          }
+
+          if (def.ignoreInvalidForm) {
+            return control.valid;
+          }
+
+          return true;
+        }),
         map((value) => ({
           def,
           value,

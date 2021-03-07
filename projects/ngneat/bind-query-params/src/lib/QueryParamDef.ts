@@ -4,6 +4,10 @@ import { parse } from './utils';
 export class QueryParamDef<QueryParams = any> {
   constructor(private config: QueryParamParams<QueryParams>) {}
 
+  get ignoreInvalidForm() {
+    return this.config.ignoreInvalidForm;
+  }
+
   get queryKey() {
     return this.config.queryKey;
   }
