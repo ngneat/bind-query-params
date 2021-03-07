@@ -1,5 +1,5 @@
 import { BIND_QUERY_PARAMS_OPTIONS, BindQueryParamsFactory } from '@ngneat/bind-query-params';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
@@ -29,6 +29,7 @@ function assertRouterCall(spectator: Spectator<HomeComponent>, queryParams: Reco
 }
 
 interface Params {
+  withMinlengthValidator: string;
   searchTerm: string;
   'withBrackets[gte]': string;
   showErrors: boolean;
@@ -46,6 +47,7 @@ interface Params {
 })
 class HomeComponent {
   group = new FormGroup({
+    withMinlengthValidator: new FormControl('', [Validators.minLength(5)]),
     searchTerm: new FormControl(),
     'withBrackets[gte]': new FormControl(),
     showErrors: new FormControl(false),
@@ -64,6 +66,7 @@ class HomeComponent {
 
   bindQueryParams = this.factory
     .create<Params>([
+      { queryKey: 'withMinlengthValidator', ignoreInvalidForm: true },
       { queryKey: 'searchTerm' },
       { queryKey: 'withBrackets[gte]' },
       { queryKey: 'showErrors', type: 'boolean' },
@@ -118,6 +121,61 @@ describe('BindQueryParams', () => {
 
         const notActive = spectator.component.bindQueryParams.paramExists('showErrors');
         expect(notActive).toBeFalse();
+      }));
+    });
+
+    describe('ignoreInvalidForm', () => {
+      it('should navigate only when control is valid', fakeAsync(() => {
+        spectator = createComponent();
+        const router = spectator.inject(Router);
+
+        spectator.component.group.patchValue({
+          withMinlengthValidator: 'with',
+        });
+
+        tick();
+
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        spectator.component.group.patchValue({
+          withMinlengthValidator: 'with1',
+        });
+
+        tick();
+
+        assertRouterCall(spectator, { withMinlengthValidator: 'with1' });
+      }));
+
+      it('should navigate only when group is valid', fakeAsync(() => {
+        spectator = createComponent({
+          providers: [
+            {
+              provide: BIND_QUERY_PARAMS_OPTIONS,
+              useValue: {
+                ignoreInvalidForm: true,
+                windowRef: window,
+              },
+            },
+          ],
+        });
+        const router = spectator.inject(Router);
+
+        spectator.component.group.patchValue({
+          searchTerm: 'term',
+          withMinlengthValidator: 'with',
+        });
+
+        tick();
+
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        spectator.component.group.patchValue({
+          withMinlengthValidator: 'with1',
+        });
+
+        tick();
+
+        assertRouterCall(spectator, { withMinlengthValidator: 'with1' });
       }));
     });
 

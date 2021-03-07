@@ -3,6 +3,7 @@ import { QueryParamDef } from './QueryParamDef';
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string' | 'object';
 
 export type QueryParamParams<QueryParams = any> = {
+  ignoreInvalidForm?: boolean;
   queryKey: keyof QueryParams & string;
   path?: string;
   type?: ParamDefType;
@@ -12,6 +13,7 @@ export type QueryParamParams<QueryParams = any> = {
 };
 
 export interface BindQueryParamsOptions {
+  ignoreInvalidForm?: boolean;
   windowRef: Window;
 }
 
