@@ -8,7 +8,7 @@ export type QueryParamParams<QueryParams = any> = {
   type?: ParamDefType;
   strategy?: 'modelToUrl' | 'twoWay';
   parser?: (value: string) => any;
-  serializer?: (value: unknown) => string;
+  serializer?: <T>(value: T) => string;
 };
 
 export interface BindQueryParamsOptions {
