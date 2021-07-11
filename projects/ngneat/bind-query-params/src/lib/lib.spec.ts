@@ -74,7 +74,7 @@ class HomeComponent {
       {
         queryKey: 'serializer',
         parser: (value) => new Date(value),
-        serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as string)),
+        serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as any)),
       },
       { queryKey: 'modelToUrl', type: 'array', strategy: 'modelToUrl' },
       { queryKey: 'modelToUrl2', type: 'array', strategy: 'modelToUrl' },
@@ -118,6 +118,15 @@ describe('BindQueryParams', () => {
 
         const notActive = spectator.component.bindQueryParams.paramExists('showErrors');
         expect(notActive).toBeFalse();
+      }));
+
+      it('should return whether the URL contains some of the provided keys', fakeAsync(() => {
+        spectator = createComponent({
+          providers: [stubQueryParams('searchTerm=term')],
+        });
+
+        const active = spectator.component.bindQueryParams.someParamExists();
+        expect(active).toBeTrue();
       }));
     });
 
