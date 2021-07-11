@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/ngneat/bind-query-params/compare/v1.5.2...v1.6.0) (2021-07-11)
+
+
+### Features
+
+* 🎸 add some param exists method ([9744758](https://github.com/ngneat/bind-query-params/commit/9744758c9534cfc55e10535a90736f66250a83be))
+
 ### [1.5.2](https://github.com/ngneat/bind-query-params/compare/v1.5.1...v1.5.2) (2021-05-24)
 
 
