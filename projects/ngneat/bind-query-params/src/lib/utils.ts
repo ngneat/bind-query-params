@@ -29,11 +29,10 @@ export function get(obj: Record<string, any>, path: string): any {
 export function resolveParams(params: ResolveParamsOption | ResolveParamsOption[]) {
   const toArray = coerceArray(params);
 
-  const result: Record<string, string> = {};
+  const result: Record<string, string | null> = {};
 
-  toArray.forEach(({ def: { queryKey, serializer }, value }) => {
-    const serializedValue = serializer?.(value) || value?.toString();
-    result[queryKey] = serializedValue || null;
+  toArray.forEach(({ def, value }) => {
+    result[def.queryKey] = def.serialize(value);
   });
 
   return result;

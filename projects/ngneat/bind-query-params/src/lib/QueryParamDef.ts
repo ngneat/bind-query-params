@@ -28,6 +28,24 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.serializer;
   }
 
+  serialize(controlValue: any): string | null {
+    if (this.serializer) {
+      return this.serializer(controlValue);
+    }
+
+    if (controlValue === null || controlValue === undefined) {
+      return null;
+    }
+
+    let serializedValue = controlValue?.toString();
+
+    if (controlValue.toString() === '[object Object]') {
+      serializedValue = JSON.stringify(controlValue);
+    }
+
+    return serializedValue;
+  }
+
   parse(queryParamValue: string) {
     if (this.parser) {
       return this.parser(queryParamValue);
