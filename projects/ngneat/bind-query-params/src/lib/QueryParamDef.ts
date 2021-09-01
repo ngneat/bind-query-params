@@ -37,9 +37,9 @@ export class QueryParamDef<QueryParams = any> {
       return null;
     }
 
-    let serializedValue = controlValue?.toString();
+    let serializedValue = controlValue.toString();
 
-    if (controlValue.toString() === '[object Object]') {
+    if (serializedValue === '[object Object]') {
       serializedValue = JSON.stringify(controlValue);
     }
 
