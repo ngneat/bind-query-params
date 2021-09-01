@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/ngneat/bind-query-params/compare/v1.6.0...v1.6.1) (2021-09-01)
+
+
+### Bug Fixes
+
+* 🐛 support non primitive types ([357d638](https://github.com/ngneat/bind-query-params/commit/357d63875a60a801bc5f33e7b37feab01e5106bc)), closes [#15](https://github.com/ngneat/bind-query-params/issues/15)
+
 ## [1.6.0](https://github.com/ngneat/bind-query-params/compare/v1.5.2...v1.6.0) (2021-07-11)
 
 
