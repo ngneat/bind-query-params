@@ -37,13 +37,9 @@ export class QueryParamDef<QueryParams = any> {
       return null;
     }
 
-    let serializedValue = controlValue?.toString();
+    const serializedValue = controlValue.toString();
 
-    if (controlValue.toString() === '[object Object]') {
-      serializedValue = JSON.stringify(controlValue);
-    }
-
-    return serializedValue;
+    return serializedValue === '[object Object]' ? JSON.stringify(controlValue) : serializedValue;
   }
 
   parse(queryParamValue: string) {
