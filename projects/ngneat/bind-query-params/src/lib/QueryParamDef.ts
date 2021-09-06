@@ -33,7 +33,7 @@ export class QueryParamDef<QueryParams = any> {
       return this.serializer(controlValue);
     }
 
-    if (controlValue === null || controlValue === undefined) {
+    if (controlValue === null || controlValue === undefined || controlValue === '') {
       return null;
     }
 

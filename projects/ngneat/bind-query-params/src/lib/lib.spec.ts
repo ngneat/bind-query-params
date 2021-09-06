@@ -288,6 +288,26 @@ describe('BindQueryParams', () => {
           })
         );
       });
+
+      it('should remove the query params when the value is empty', fakeAsync(() => {
+        spectator = createComponent();
+
+        spectator.component.group.patchValue({
+          searchTerm: 'foo',
+        });
+
+        tick();
+
+        assertRouterCall(spectator, { searchTerm: 'foo' });
+
+        spectator.component.group.patchValue({
+          searchTerm: '',
+        });
+
+        tick();
+
+        assertRouterCall(spectator, { searchTerm: null });
+      }));
     });
 
     describe('Custom parser', () => {
