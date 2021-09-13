@@ -1,8 +1,8 @@
 import { FormGroup } from '@angular/forms';
-import { merge, Subject } from 'rxjs';
+import { merge, Subject, identity } from 'rxjs';
 import { Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, takeUntil } from 'rxjs/operators';
+import { auditTime, map, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -32,6 +32,7 @@ export class BindQueryParamsManager<T = any> {
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
+        def.setInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
         map((value) => ({
           def,
           value,
