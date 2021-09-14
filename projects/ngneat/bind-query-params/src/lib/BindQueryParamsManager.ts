@@ -32,7 +32,7 @@ export class BindQueryParamsManager<T = any> {
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
-        def.setInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
+        def.syncInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
         map((value) => ({
           def,
           value,

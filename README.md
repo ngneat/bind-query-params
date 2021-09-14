@@ -88,10 +88,7 @@ Before updating the control with the value, the manager will parse it based on t
 
 ### `setInitialValue`
 
-Rather the value should be inherited from the formControl or not.
-When set to true, The initial value will be the same as the form control one.
-When set to false, There will be no initial value and the value we'll be set from the formControl valueChanges.
-Default is false.
+Whether to sync the initial control value in the URL.
 
 ### `parser`
 

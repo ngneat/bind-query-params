@@ -38,7 +38,7 @@ export class AppComponent {
 
   private manager = this.factory
     .create<Params>([
-      { queryKey: 'searchTerm', setInitialValue: true },
+      { queryKey: 'searchTerm', syncInitialValue: true },
       { queryKey: 'showErrors', type: 'boolean' },
       { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
       { queryKey: 'nested', path: 'nested.a' },
