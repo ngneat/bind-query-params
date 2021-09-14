@@ -28,8 +28,8 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.serializer;
   }
 
-  get setInitialValue() {
-    return this.config.setInitialValue || false;
+  get syncInitialValue() {
+    return this.config.syncInitialValue || false;
   }
 
   serialize(controlValue: any): string | null {
