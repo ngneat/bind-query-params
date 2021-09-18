@@ -4,6 +4,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { Location } from '@angular/common';
 
 function stubQueryParams(params: string) {
   return {
@@ -40,7 +41,6 @@ interface Params {
   parser: string;
   serializer: Date;
 }
-
 @Component({
   template: '',
 })
@@ -60,7 +60,7 @@ class HomeComponent {
     serializer: new FormControl(),
   });
 
-  constructor(private factory: BindQueryParamsFactory) {}
+  constructor(public factory: BindQueryParamsFactory, public location: Location) {}
 
   bindQueryParams = this.factory
     .create<Params>([
@@ -97,6 +97,7 @@ describe('BindQueryParams', () => {
         provide: Router,
         useValue: {
           navigate: jasmine.createSpy('Router.navigate'),
+          url: jasmine.createSpy('Router.url'),
         },
       },
     ],
@@ -433,5 +434,21 @@ describe('BindQueryParams', () => {
         );
       });
     });
+  });
+
+  describe('config', () => {
+    it('should sync url with control initial value', fakeAsync(() => {
+      spectator = createComponent();
+      const searchTerm = 'initial value';
+      spectator.component.group = new FormGroup({
+        searchTerm: new FormControl(searchTerm),
+      });
+      spectator.component.bindQueryParams = spectator.component.factory
+        .create<Params>([{ queryKey: 'searchTerm', syncInitialValue: true }])
+        .connect(spectator.component.group);
+
+      tick();
+      assertRouterCall(spectator, { searchTerm });
+    }));
   });
 });
