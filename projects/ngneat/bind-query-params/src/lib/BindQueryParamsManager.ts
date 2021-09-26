@@ -2,7 +2,7 @@ import { FormGroup } from '@angular/forms';
 import { merge, Subject, identity } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, startWith, takeUntil } from 'rxjs/operators';
+import { auditTime, filter, map, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -28,11 +28,11 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
+    this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay' || def.syncInitialValue);
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
-        def.syncOnlyInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
+        def.strategy === 'twoWay' || def.syncInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
         map((value) => ({
           def,
           value,
@@ -57,16 +57,17 @@ export class BindQueryParamsManager<T = any> {
         buffer = [];
       });
 
-    const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(
-      ({ strategy, syncOnlyInitialValue }: QueryParamDef) => strategy === 'twoWay' && !syncOnlyInitialValue
-    );
+    const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(({ strategy }: QueryParamDef) => strategy === 'twoWay');
 
     if (twoWaySyncDef.length > 0) {
-      this.router.events.pipe(takeUntil(this.$destroy)).subscribe((event) => {
-        if (event instanceof NavigationEnd) {
+      this.router.events
+        .pipe(
+          filter((event) => event instanceof NavigationEnd),
+          takeUntil(this.$destroy)
+        )
+        .subscribe(() => {
           this.updateControl(twoWaySyncDef, { emitEvent: false });
-        }
-      });
+        });
     }
   }
 
