@@ -444,7 +444,7 @@ describe('BindQueryParams', () => {
         searchTerm: new FormControl(searchTerm),
       });
       spectator.component.bindQueryParams = spectator.component.factory
-        .create<Params>([{ queryKey: 'searchTerm', syncInitialValue: true }])
+        .create<Params>([{ queryKey: 'searchTerm', syncOnlyInitialValue: true }])
         .connect(spectator.component.group);
 
       tick();
