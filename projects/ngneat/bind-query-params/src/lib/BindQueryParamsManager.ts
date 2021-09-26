@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
 import { merge, Subject, identity } from 'rxjs';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
 import { auditTime, map, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
@@ -32,7 +32,7 @@ export class BindQueryParamsManager<T = any> {
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
-        def.syncInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
+        def.syncOnlyInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
         map((value) => ({
           def,
           value,
@@ -56,6 +56,18 @@ export class BindQueryParamsManager<T = any> {
         this.updateQueryParams(resolveParams(buffer));
         buffer = [];
       });
+
+    const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(
+      ({ strategy, syncOnlyInitialValue }: QueryParamDef) => strategy === 'twoWay' && !syncOnlyInitialValue
+    );
+
+    if (twoWaySyncDef.length > 0) {
+      this.router.events.pipe(takeUntil(this.$destroy)).subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          this.updateControl(twoWaySyncDef, { emitEvent: false });
+        }
+      });
+    }
   }
 
   destroy() {
