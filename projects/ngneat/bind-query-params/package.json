@@ -1,6 +1,6 @@
 {
   "name": "@ngneat/bind-query-params",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Sync URL Query Params with Angular Form Controls",
   "dependencies": {
     "tslib": "^2.0.0",

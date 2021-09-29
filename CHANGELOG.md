@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/ngneat/bind-query-params/compare/v1.6.2...v1.7.0) (2021-09-29)
+
+
+### Features
+
+* 🎸 syncAllDefs ([45907ec](https://github.com/ngneat/bind-query-params/commit/45907ec611a2928abedf88bed8af86fde7e8520a))
+
 ### [1.6.2](https://github.com/ngneat/bind-query-params/compare/v1.6.1...v1.6.2) (2021-09-06)
 
 
