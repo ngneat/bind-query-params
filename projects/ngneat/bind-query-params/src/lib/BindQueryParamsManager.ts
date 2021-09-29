@@ -3,7 +3,7 @@ import { merge, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
-import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
+import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
 
@@ -79,10 +79,12 @@ export class BindQueryParamsManager<T = any> {
     return result;
   }
 
-  syncDefs(
-    queryKeys: (keyof T & string) | (keyof T & string)[],
-    options: { emitEvent: boolean } = { emitEvent: true }
-  ) {
+  syncAllDefs(options: SyncDefsOptions = { emitEvent: true }) {
+    const allKeys = this.defs.map((def) => def.queryKey);
+    this.syncDefs(allKeys, options);
+  }
+
+  syncDefs(queryKeys: (keyof T & string) | (keyof T & string)[], options: SyncDefsOptions = { emitEvent: true }) {
     const defs: QueryParamDef<T>[] = [];
 
     coerceArray(queryKeys).forEach((key) => {

@@ -19,3 +19,7 @@ export interface ResolveParamsOption<T = any> {
   def: QueryParamDef<T>;
   value: any;
 }
+
+export interface SyncDefsOptions {
+  emitEvent: boolean;
+}
