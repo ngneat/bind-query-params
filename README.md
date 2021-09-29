@@ -86,9 +86,9 @@ Specify the control value type. Available options are:
 `boolean`, `array`, `number`, `string` and `object`.
 Before updating the control with the value, the manager will parse it based on the provided `type`.
 
-### `setInitialValue`
+### `syncInitialValue`
 
-Whether to sync the initial control value in the URL.
+Whether to sync the initial control value in the URL. Relevant only when using the `modelToUrl` strategy. 
 
 ### `parser`
 

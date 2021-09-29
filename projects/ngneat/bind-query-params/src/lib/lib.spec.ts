@@ -2,7 +2,7 @@ import { BIND_QUERY_PARAMS_OPTIONS, BindQueryParamsFactory } from '@ngneat/bind-
 import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { Location } from '@angular/common';
 
@@ -103,7 +103,12 @@ describe('BindQueryParams', () => {
             }
           }),
           url: jasmine.createSpy('Router.url'),
-          events: {
+        },
+      },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParams: {
             pipe: () => {
               return {
                 subscribe: () => {},

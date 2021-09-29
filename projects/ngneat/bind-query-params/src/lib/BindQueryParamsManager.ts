@@ -1,8 +1,8 @@
 import { FormGroup } from '@angular/forms';
 import { merge, Subject, identity } from 'rxjs';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, filter, map, startWith, takeUntil } from 'rxjs/operators';
+import { auditTime, map, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -21,6 +21,7 @@ export class BindQueryParamsManager<T = any> {
 
   constructor(
     private router: Router,
+    private activeRoute: ActivatedRoute,
     defs: QueryParamParams<T>[] | QueryParamParams<T>,
     private options: BindQueryParamsOptions
   ) {
@@ -59,15 +60,10 @@ export class BindQueryParamsManager<T = any> {
 
     const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(({ strategy }: QueryParamDef) => strategy === 'twoWay');
 
-    if (twoWaySyncDef.length > 0) {
-      this.router.events
-        .pipe(
-          filter((event) => event instanceof NavigationEnd),
-          takeUntil(this.$destroy)
-        )
-        .subscribe(() => {
-          this.updateControl(twoWaySyncDef, { emitEvent: false });
-        });
+    if (twoWaySyncDef.length) {
+      this.activeRoute.queryParams.pipe(takeUntil(this.$destroy)).subscribe(() => {
+        this.updateControl(twoWaySyncDef, { emitEvent: false });
+      });
     }
   }
 
