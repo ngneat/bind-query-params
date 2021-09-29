@@ -2,7 +2,7 @@ import { FormGroup } from '@angular/forms';
 import { merge, Subject, identity } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, startWith, takeUntil } from 'rxjs/operators';
+import { auditTime, map, pairwise, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -29,11 +29,11 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay' || def.syncInitialValue);
+    this.updateControl(this.defs, { emitEvent: true }, this.shouldSyncInitialValue);
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
-        def.strategy === 'twoWay' || def.syncInitialValue ? startWith(this.group.get(def.path)?.value) : identity,
+        this.shouldSyncInitialValue(def) ? startWith(this.group.get(def.path)?.value) : identity,
         map((value) => ({
           def,
           value,
@@ -61,9 +61,14 @@ export class BindQueryParamsManager<T = any> {
     const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(({ strategy }: QueryParamDef) => strategy === 'twoWay');
 
     if (twoWaySyncDef.length) {
-      this.activeRoute.queryParams.pipe(takeUntil(this.$destroy)).subscribe(() => {
-        this.updateControl(twoWaySyncDef, { emitEvent: false });
-      });
+      this.activeRoute.queryParams
+        .pipe(pairwise(), takeUntil(this.$destroy))
+        .subscribe(([prevQueryParams, curQueryParams]) => {
+          let paramSDiff = twoWaySyncDef.filter(
+            ({ queryKey }) => prevQueryParams[queryKey] !== curQueryParams[queryKey]
+          );
+          this.updateControl(paramSDiff, { emitEvent: true });
+        });
     }
   }
 
@@ -151,5 +156,9 @@ export class BindQueryParamsManager<T = any> {
     if (Object.keys(value).length) {
       this.group.patchValue(value, options);
     }
+  }
+
+  private shouldSyncInitialValue(def: QueryParamDef) {
+    return def.strategy === 'twoWay' || def.syncInitialValue;
   }
 }
