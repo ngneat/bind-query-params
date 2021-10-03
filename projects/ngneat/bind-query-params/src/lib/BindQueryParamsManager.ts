@@ -29,11 +29,13 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    this.updateControl(this.defs, { emitEvent: true }, this.shouldSyncInitialValue);
+    this.updateControl(this.defs, { emitEvent: true }, shouldSyncInitialValue);
 
     const controls = this.defs.map((def) => {
-      return this.group.get(def.path)!.valueChanges.pipe(
-        this.shouldSyncInitialValue(def) ? startWith(this.group.get(def.path)?.value) : identity,
+      const control = this.group.get(def.path)!;
+
+      return control.valueChanges.pipe(
+        shouldSyncInitialValue(def) ? startWith(control.value) : identity,
         map((value) => ({
           def,
           value,
@@ -162,8 +164,8 @@ export class BindQueryParamsManager<T = any> {
       this.group.patchValue(value, options);
     }
   }
+}
 
-  private shouldSyncInitialValue(def: QueryParamDef) {
-    return def.strategy === 'twoWay' || def.syncInitialValue;
-  }
+function shouldSyncInitialValue(def: QueryParamDef) {
+  return def.strategy === 'twoWay' || def.syncInitialValue;
 }
