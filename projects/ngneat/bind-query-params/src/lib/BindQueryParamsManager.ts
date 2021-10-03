@@ -64,10 +64,13 @@ export class BindQueryParamsManager<T = any> {
       this.activeRoute.queryParams
         .pipe(pairwise(), takeUntil(this.$destroy))
         .subscribe(([prevQueryParams, curQueryParams]) => {
-          let paramSDiff = twoWaySyncDef.filter(
+          let paramsDiff = twoWaySyncDef.filter(
             ({ queryKey }) => prevQueryParams[queryKey] !== curQueryParams[queryKey]
           );
-          this.updateControl(paramSDiff, { emitEvent: true });
+
+          if (paramsDiff.length) {
+            this.updateControl(paramsDiff, { emitEvent: true });
+          }
         });
     }
   }
