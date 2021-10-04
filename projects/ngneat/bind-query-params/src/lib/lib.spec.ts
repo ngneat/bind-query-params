@@ -472,6 +472,57 @@ describe('BindQueryParams', () => {
         );
       });
     });
+
+    describe('syncAllDefs', () => {
+      it('should sync all control values ONCE based on the query param value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=4,5,6' })],
+        });
+
+        spyOn(spectator.component.group, 'patchValue').and.callThrough();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncAllDefs();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+            modelToUrl2: ['4', '5', '6'],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+
+        expect(spectator.component.group.patchValue).toHaveBeenCalledTimes(1);
+      });
+
+      it('should sync all controls values based on the query params value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=1,2' })],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+            modelToUrl2: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncAllDefs();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+            modelToUrl2: ['1', '2'],
+          })
+        );
+      });
+    });
   });
 
   describe('Strategies', () => {
