@@ -23,7 +23,7 @@ export class AppComponent {
   title = 'bindQueryParams';
 
   group = new FormGroup({
-    searchTerm: new FormControl(),
+    searchTerm: new FormControl('some search term'),
     showErrors: new FormControl(false),
     issues: new FormControl([]),
     nested: new FormGroup(
@@ -39,7 +39,7 @@ export class AppComponent {
   private manager = this.factory
     .create<Params>([
       { queryKey: 'searchTerm' },
-      { queryKey: 'showErrors', type: 'boolean' },
+      { queryKey: 'showErrors', type: 'boolean', strategy: 'modelToUrl', syncInitialValue: true },
       { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
       { queryKey: 'nested', path: 'nested.a' },
     ])

@@ -1,8 +1,8 @@
 import { FormGroup } from '@angular/forms';
-import { merge, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { merge, Subject, identity } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, takeUntil } from 'rxjs/operators';
+import { auditTime, map, pairwise, startWith, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
@@ -21,6 +21,7 @@ export class BindQueryParamsManager<T = any> {
 
   constructor(
     private router: Router,
+    private activeRoute: ActivatedRoute,
     defs: QueryParamParams<T>[] | QueryParamParams<T>,
     private options: BindQueryParamsOptions
   ) {
@@ -28,10 +29,13 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
-    this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
+    this.updateControl(this.defs, { emitEvent: true }, shouldSyncInitialValue);
 
     const controls = this.defs.map((def) => {
-      return this.group.get(def.path)!.valueChanges.pipe(
+      const control = this.group.get(def.path)!;
+
+      return control.valueChanges.pipe(
+        shouldSyncInitialValue(def) ? startWith(control.value) : identity,
         map((value) => ({
           def,
           value,
@@ -55,6 +59,22 @@ export class BindQueryParamsManager<T = any> {
         this.updateQueryParams(resolveParams(buffer));
         buffer = [];
       });
+
+    const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(({ strategy }: QueryParamDef) => strategy === 'twoWay');
+
+    if (twoWaySyncDef.length) {
+      this.activeRoute.queryParams
+        .pipe(pairwise(), takeUntil(this.$destroy))
+        .subscribe(([prevQueryParams, curQueryParams]) => {
+          let paramsDiff = twoWaySyncDef.filter(
+            ({ queryKey }) => prevQueryParams[queryKey] !== curQueryParams[queryKey]
+          );
+
+          if (paramsDiff.length) {
+            this.updateControl(paramsDiff, { emitEvent: true });
+          }
+        });
+    }
   }
 
   destroy() {
@@ -144,4 +164,8 @@ export class BindQueryParamsManager<T = any> {
       this.group.patchValue(value, options);
     }
   }
+}
+
+function shouldSyncInitialValue(def: QueryParamDef) {
+  return def.strategy === 'twoWay' || def.syncInitialValue;
 }

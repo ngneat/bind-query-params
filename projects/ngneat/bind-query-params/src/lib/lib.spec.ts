@@ -2,17 +2,17 @@ import { BIND_QUERY_PARAMS_OPTIONS, BindQueryParamsFactory } from '@ngneat/bind-
 import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { QueryParamParams } from './types';
+import { Subject } from 'rxjs';
 
-function stubQueryParams(params: string) {
+function stubQueryParams({ search, location }: { search?: string; location?: any }) {
   return {
     provide: BIND_QUERY_PARAMS_OPTIONS,
     useValue: {
       windowRef: {
-        location: {
-          search: `?${params}`,
-        },
+        location: location || { search: `?${search}` },
       },
     },
   };
@@ -25,6 +25,15 @@ function assertRouterCall(spectator: Spectator<HomeComponent>, queryParams: Reco
     replaceUrl: true,
   });
 
+  resetRouter(spectator);
+}
+
+function skipInitialSync(spectator: Spectator<HomeComponent>) {
+  tick();
+  resetRouter(spectator);
+}
+
+function resetRouter(spectator: Spectator<HomeComponent>) {
   spectator.inject(Router).navigate.calls.reset();
 }
 
@@ -40,7 +49,6 @@ interface Params {
   parser: string;
   serializer: Date;
 }
-
 @Component({
   template: '',
 })
@@ -60,7 +68,7 @@ class HomeComponent {
     serializer: new FormControl(),
   });
 
-  constructor(private factory: BindQueryParamsFactory) {}
+  constructor(public factory: BindQueryParamsFactory) {}
 
   bindQueryParams = this.factory
     .create<Params>([
@@ -84,6 +92,7 @@ class HomeComponent {
 
 describe('BindQueryParams', () => {
   let spectator: Spectator<HomeComponent>;
+  const routeNavigateSubject = new Subject();
   const createComponent = createComponentFactory({
     component: HomeComponent,
     providers: [
@@ -96,7 +105,16 @@ describe('BindQueryParams', () => {
       {
         provide: Router,
         useValue: {
-          navigate: jasmine.createSpy('Router.navigate'),
+          navigate: jasmine
+            .createSpy('Router.navigate')
+            .and.callFake((_, { queryParams }) => routeNavigateSubject.next(queryParams)),
+          url: jasmine.createSpy('Router.url'),
+        },
+      },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          queryParams: routeNavigateSubject.asObservable(),
         },
       },
     ],
@@ -104,14 +122,17 @@ describe('BindQueryParams', () => {
 
   afterEach(() => {
     spectator.component.bindQueryParams.destroy();
+    resetRouter(spectator);
   });
 
   describe('BindQueryParams', () => {
     describe('isActive', () => {
       it('should return whether the URL contains the provided key', fakeAsync(() => {
         spectator = createComponent({
-          providers: [stubQueryParams('searchTerm=term')],
+          providers: [stubQueryParams({ search: 'searchTerm=term' })],
         });
+
+        tick();
 
         const active = spectator.component.bindQueryParams.paramExists('searchTerm');
         expect(active).toBeTrue();
@@ -122,8 +143,9 @@ describe('BindQueryParams', () => {
 
       it('should return whether the URL contains some of the provided keys', fakeAsync(() => {
         spectator = createComponent({
-          providers: [stubQueryParams('searchTerm=term')],
+          providers: [stubQueryParams({ search: 'searchTerm=term' })],
         });
+        tick();
 
         const active = spectator.component.bindQueryParams.someParamExists();
         expect(active).toBeTrue();
@@ -133,6 +155,8 @@ describe('BindQueryParams', () => {
     describe('string', () => {
       it('control => query', fakeAsync(() => {
         spectator = createComponent();
+
+        skipInitialSync(spectator);
 
         spectator.component.group.patchValue({
           searchTerm: 'term',
@@ -146,6 +170,8 @@ describe('BindQueryParams', () => {
       it('control => query (with a key that has brackets)', fakeAsync(() => {
         spectator = createComponent();
 
+        skipInitialSync(spectator);
+
         spectator.component.group.patchValue({
           'withBrackets[gte]': 'aa',
         });
@@ -157,7 +183,7 @@ describe('BindQueryParams', () => {
 
       it('query => control', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('searchTerm=term')],
+          providers: [stubQueryParams({ search: 'searchTerm=term' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -169,7 +195,7 @@ describe('BindQueryParams', () => {
 
       it('query => control (with a key that has brackets)', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('withBrackets[gte]=bb')],
+          providers: [stubQueryParams({ search: 'withBrackets[gte]=bb' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -184,6 +210,8 @@ describe('BindQueryParams', () => {
       it('control => query', fakeAsync(() => {
         spectator = createComponent();
 
+        skipInitialSync(spectator);
+
         spectator.component.group.patchValue({
           showErrors: true,
         });
@@ -195,7 +223,7 @@ describe('BindQueryParams', () => {
 
       it('query => control', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('showErrors=true')],
+          providers: [stubQueryParams({ search: 'showErrors=true' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -210,6 +238,8 @@ describe('BindQueryParams', () => {
       it('control => query', fakeAsync(() => {
         spectator = createComponent();
 
+        skipInitialSync(spectator);
+
         spectator.component.group.patchValue({
           issues: [1, 2, 3],
         });
@@ -221,7 +251,7 @@ describe('BindQueryParams', () => {
 
       it('query => control', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('issues=1,2,3')],
+          providers: [stubQueryParams({ search: 'issues=1,2,3' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -235,6 +265,8 @@ describe('BindQueryParams', () => {
     describe('nested control', () => {
       it('control => query', fakeAsync(() => {
         spectator = createComponent();
+
+        skipInitialSync(spectator);
 
         spectator.component.group.patchValue({
           a: {
@@ -250,7 +282,7 @@ describe('BindQueryParams', () => {
 
       it('query => control', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('nested=value&nestedarray=1,2')],
+          providers: [stubQueryParams({ search: 'nested=value&nestedarray=1,2' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -268,6 +300,8 @@ describe('BindQueryParams', () => {
       it('should only persist control => url', fakeAsync(() => {
         spectator = createComponent();
 
+        skipInitialSync(spectator);
+
         spectator.component.group.patchValue({
           modelToUrl: [1, 2, 3],
         });
@@ -279,7 +313,7 @@ describe('BindQueryParams', () => {
 
       it('should NOT query => control', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('modelToUrl=1,2,3')],
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -291,6 +325,8 @@ describe('BindQueryParams', () => {
 
       it('should remove the query params when the value is empty', fakeAsync(() => {
         spectator = createComponent();
+
+        skipInitialSync(spectator);
 
         spectator.component.group.patchValue({
           searchTerm: 'foo',
@@ -313,7 +349,7 @@ describe('BindQueryParams', () => {
     describe('Custom parser', () => {
       it('should allow custom parser', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('parser=1,2,3')],
+          providers: [stubQueryParams({ search: 'parser=1,2,3' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -328,6 +364,8 @@ describe('BindQueryParams', () => {
       it('should allow custom serializer', fakeAsync(() => {
         spectator = createComponent();
 
+        skipInitialSync(spectator);
+
         spectator.component.group.patchValue({
           serializer: new Date('2012-10-10'),
         });
@@ -341,6 +379,8 @@ describe('BindQueryParams', () => {
     describe('Multiple updates', () => {
       it('should aggregate multiple updates', fakeAsync(() => {
         spectator = createComponent();
+
+        skipInitialSync(spectator);
 
         spectator.component.group.patchValue({
           issues: [1, 2, 3],
@@ -357,7 +397,7 @@ describe('BindQueryParams', () => {
     describe('syncDefs', () => {
       it('should sync the control value ONCE based on the query param value', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('modelToUrl=1,2,3')],
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3' })],
         });
 
         spyOn(spectator.component.group, 'patchValue').and.callThrough();
@@ -377,14 +417,13 @@ describe('BindQueryParams', () => {
         );
 
         spectator.component.bindQueryParams.syncDefs('modelToUrl');
-        spectator.component.bindQueryParams.syncDefs('modelToUrl');
 
         expect(spectator.component.group.patchValue).toHaveBeenCalledTimes(1);
       });
 
       it('should sync the controls values based on the query params value', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('modelToUrl=1,2,3&modelToUrl2=1,2')],
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=1,2' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -406,7 +445,7 @@ describe('BindQueryParams', () => {
 
       it('should allow sync different controls in different times', () => {
         spectator = createComponent({
-          providers: [stubQueryParams('modelToUrl=1,2,3&modelToUrl2=1,2')],
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=1,2' })],
         });
 
         expect(spectator.component.group.value).toEqual(
@@ -432,6 +471,137 @@ describe('BindQueryParams', () => {
           })
         );
       });
+    });
+
+    describe('syncAllDefs', () => {
+      it('should sync all control values ONCE based on the query param value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=4,5,6' })],
+        });
+
+        spyOn(spectator.component.group, 'patchValue').and.callThrough();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncAllDefs();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+            modelToUrl2: ['4', '5', '6'],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncDefs('modelToUrl');
+
+        expect(spectator.component.group.patchValue).toHaveBeenCalledTimes(1);
+      });
+
+      it('should sync all controls values based on the query params value', () => {
+        spectator = createComponent({
+          providers: [stubQueryParams({ search: 'modelToUrl=1,2,3&modelToUrl2=1,2' })],
+        });
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: [],
+            modelToUrl2: [],
+          })
+        );
+
+        spectator.component.bindQueryParams.syncAllDefs();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '2', '3'],
+            modelToUrl2: ['1', '2'],
+          })
+        );
+      });
+    });
+  });
+
+  describe('Strategies', () => {
+    describe('TwoWay', () => {
+      it('should sync url with control initial value', fakeAsync(() => {
+        spectator = createComponent();
+
+        skipInitialSync(spectator);
+
+        const searchTerm = 'initial value';
+        spectator.component.group = new FormGroup({
+          searchTerm: new FormControl(searchTerm),
+        });
+        spectator.component.bindQueryParams = spectator.component.factory
+          .create<Params>([{ queryKey: 'searchTerm' }])
+          .connect(spectator.component.group);
+
+        tick();
+        assertRouterCall(spectator, { searchTerm });
+      }));
+
+      it('should sync url to model on query param changes', fakeAsync(() => {
+        const controlName: keyof Params = 'showErrors';
+        function updateQueryParam(value: boolean) {
+          spectator.inject(Router).navigate('', {
+            queryParams: { [controlName]: value },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+          tick();
+        }
+
+        function assertControl(value: boolean) {
+          expect(spectator.component.group.get(controlName)!.value).toEqual(value);
+        }
+
+        const location = { search: '' };
+        spectator = createComponent({
+          providers: [stubQueryParams({ location })],
+        });
+        tick();
+
+        [true, false, true].forEach((value) => {
+          location.search = `?${controlName}=${value}`;
+          updateQueryParam(value);
+          assertControl(value);
+        });
+
+        spectator.inject(Router).navigate.calls.reset();
+      }));
+    });
+
+    describe('ModelToUrl', () => {
+      const searchTerm = 'initial value';
+
+      function assertModelToUrl(def: Partial<QueryParamParams<Params>> = {}) {
+        spectator = createComponent();
+
+        skipInitialSync(spectator);
+
+        spectator.component.group = new FormGroup({
+          searchTerm: new FormControl(searchTerm),
+        });
+        spectator.component.bindQueryParams = spectator.component.factory
+          .create<Params>([{ queryKey: 'searchTerm', strategy: 'modelToUrl', ...def }])
+          .connect(spectator.component.group);
+
+        tick();
+      }
+
+      it('should sync url with control initial value when passing syncInitialValue', fakeAsync(() => {
+        assertModelToUrl({ syncInitialValue: true });
+        assertRouterCall(spectator, { searchTerm });
+      }));
+
+      it('should not sync url with control initial value by default', fakeAsync(() => {
+        assertModelToUrl();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+      }));
     });
   });
 });
