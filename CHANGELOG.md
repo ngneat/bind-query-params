@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/ngneat/bind-query-params/compare/v1.7.0...v2.0.0) (2021-10-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* 🧨 TwoWay strategy will now listen to query param changes instead of only
+syncing on init
+
+### Features
+
+* 🎸 add syncInitialValue option ([2aca8b4](https://github.com/ngneat/bind-query-params/commit/2aca8b4d39a4d1f32ba5f1f8bf6ab1eab5e289bd)), closes [#14](https://github.com/ngneat/bind-query-params/issues/14)
+
 ## [1.7.0](https://github.com/ngneat/bind-query-params/compare/v1.6.2...v1.7.0) (2021-09-29)
 
 
