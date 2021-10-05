@@ -27,7 +27,7 @@ The library provides a simple and reusable solution for binding URL query params
 
 ## Usage
 
-Inject the `BindQueryParamsFactory` provider, pass an array of [definitions](#QueryParamDefinition) and `connect` it to your form:
+Inject the `BindQueryParamsFactory` provider, pass an array of [definitions](#queryparam-definition) and `connect` it to your form:
 
 <!-- prettier-ignore -->
 ```ts
