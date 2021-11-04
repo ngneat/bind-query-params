@@ -29,6 +29,7 @@
     "@angular/platform-browser-dynamic": "~11.0.5",
     "@angular/router": "~11.0.5",
     "lodash.set": "^4.3.2",
+    "lodash.size": "^4.2.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
@@ -44,6 +45,7 @@
     "@ngneat/spectator": "^6.1.2",
     "@types/jasmine": "~3.6.0",
     "@types/lodash.set": "^4.3.2",
+    "@types/lodash.size": "^4.2.6",
     "@types/node": "^12.11.1",
     "all-contributors-cli": "^6.19.0",
     "angular-cli-ghpages": "1.0.0-rc.1",

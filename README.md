@@ -90,6 +90,10 @@ Before updating the control with the value, the manager will parse it based on t
 
 Whether to sync the initial control value in the URL. Relevant only when using the `modelToUrl` strategy. 
 
+### `removeEmptyValue`
+
+Whether to remove empty control values from url.
+
 ### `parser`
 
 Provide a custom parser. For example, the default `array` parser converts the value to an `array` of strings. If we need it to be an array of numbers, we can pass the following `parser`:
@@ -164,6 +168,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://www.netbasal.com/"><img src="https://avatars1.githubusercontent.com/u/6745730?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Netanel Basal</b></sub></a><br /><a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Code">💻</a> <a href="#content-NetanelBasal" title="Content">🖋</a> <a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Documentation">📖</a> <a href="#ideas-NetanelBasal" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-NetanelBasal" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/ritox842"><img src="https://avatars.githubusercontent.com/u/7280441?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Gili Yaniv</b></sub></a><br /><a href="https://github.com/@ngneat/bind-query-params/commits?author=ritox842" title="Code">💻</a></td>
   </tr>
 </table>
 

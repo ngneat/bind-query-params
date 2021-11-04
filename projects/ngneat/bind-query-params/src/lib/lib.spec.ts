@@ -604,4 +604,83 @@ describe('BindQueryParams', () => {
       }));
     });
   });
+
+  describe('removeEmptyValue', () => {
+    const emptyString = '';
+    const emptyObject = {};
+    const emptyArray: any[] = [];
+
+    interface EmptyValuesParams {
+      string: string;
+      object: string;
+      array: boolean;
+    }
+
+    it('should remove empty value from url', fakeAsync(() => {
+      spectator = createComponent();
+      tick();
+      skipInitialSync(spectator);
+      spectator.component.group = new FormGroup({
+        string: new FormControl(emptyString),
+        object: new FormControl(emptyObject),
+        array: new FormControl(emptyArray),
+      });
+      // @ts-ignore
+      spectator.component.bindQueryParams = spectator.component.factory
+        .create<EmptyValuesParams>([
+          { queryKey: 'string', type: 'string' },
+          { queryKey: 'object', type: 'object' },
+          { queryKey: 'array', type: 'array' },
+        ])
+        .connect(spectator.component.group);
+
+      tick();
+
+      assertRouterCall(spectator, {
+        string: null,
+        object: null,
+        array: null,
+      });
+
+      expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+    }));
+
+    it('should not remove empty value from url', fakeAsync(() => {
+      spectator = createComponent();
+      tick();
+      skipInitialSync(spectator);
+      spectator.component.group = new FormGroup({
+        string: new FormControl(emptyString),
+        object: new FormControl(emptyObject),
+        array: new FormControl(emptyArray),
+      });
+      // @ts-ignore
+      spectator.component.bindQueryParams = spectator.component.factory
+        .create<EmptyValuesParams>([
+          { queryKey: 'string', type: 'string', removeEmptyValue: false },
+          { queryKey: 'object', type: 'object', removeEmptyValue: false },
+          { queryKey: 'array', type: 'array', removeEmptyValue: false },
+        ])
+        .connect(spectator.component.group);
+
+      tick();
+      // @ts-ignore
+      const stringDef = spectator.component.bindQueryParams.getDef('string');
+      // @ts-ignore
+      const objectDef = spectator.component.bindQueryParams.getDef('object');
+      // @ts-ignore
+      const arrayDef = spectator.component.bindQueryParams.getDef('array');
+
+      assertRouterCall(spectator, {
+        // @ts-ignore
+        string: stringDef.serialize(emptyString),
+        // @ts-ignore
+        object: objectDef.serialize(emptyObject),
+        // @ts-ignore
+        array: arrayDef.serialize(emptyArray),
+      });
+
+      expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+    }));
+  });
 });

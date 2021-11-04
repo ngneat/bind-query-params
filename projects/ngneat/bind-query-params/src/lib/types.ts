@@ -10,6 +10,7 @@ export type QueryParamParams<QueryParams = any> = {
   parser?: (value: string) => any;
   serializer?: (value: any) => string | null;
   syncInitialValue?: boolean;
+  removeEmptyValue?: boolean;
 };
 
 export interface BindQueryParamsOptions {
