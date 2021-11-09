@@ -1,13 +1,13 @@
 import { AbstractControl } from '@angular/forms';
 import { ParamDefType, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
-import size from 'lodash.size';
 
 function isEmptyValue(def: QueryParamDef, value: any) {
   switch (def.type) {
     case 'array':
+      return !!value.length;
     case 'object':
-      return !size(value);
+      return !!Object.keys(value).length;
     case 'string':
       return !value || value === '';
     default:
