@@ -5,9 +5,9 @@ import { QueryParamDef } from './QueryParamDef';
 function isEmptyValue(def: QueryParamDef, value: any) {
   switch (def.type) {
     case 'array':
-      return !!value.length;
+      return !value.length;
     case 'object':
-      return !!Object.keys(value).length;
+      return !value || !Object.keys(value).length;
     case 'string':
       return !value || value === '';
     default:
