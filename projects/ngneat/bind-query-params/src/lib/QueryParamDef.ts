@@ -32,6 +32,10 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.syncInitialValue || false;
   }
 
+  get removeEmptyValue() {
+    return this.config.removeEmptyValue === undefined ? true : this.config.removeEmptyValue;
+  }
+
   serialize(controlValue: any): string | null {
     if (this.serializer) {
       return this.serializer(controlValue);

@@ -2,6 +2,19 @@ import { AbstractControl } from '@angular/forms';
 import { ParamDefType, ResolveParamsOption } from './types';
 import { QueryParamDef } from './QueryParamDef';
 
+function isEmptyValue(def: QueryParamDef, value: any) {
+  switch (def.type) {
+    case 'array':
+      return !value.length;
+    case 'object':
+      return !value || !Object.keys(value).length;
+    case 'string':
+      return !value || value === '';
+    default:
+      return false;
+  }
+}
+
 export function parse(value: any, type: ParamDefType) {
   switch (type) {
     case 'string':
@@ -32,7 +45,15 @@ export function resolveParams(params: ResolveParamsOption | ResolveParamsOption[
   const result: Record<string, string | null> = {};
 
   toArray.forEach(({ def, value }) => {
-    result[def.queryKey] = def.serialize(value);
+    let defValue: string | null;
+
+    if (def.removeEmptyValue) {
+      defValue = isEmptyValue(def, value) ? null : def.serialize(value);
+    } else {
+      defValue = def.serialize(value);
+    }
+
+    result[def.queryKey] = defValue;
   });
 
   return result;

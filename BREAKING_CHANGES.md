@@ -1,3 +1,14 @@
+#v3
+### `removeEmptyValue`
+Previously the url contained all synced form values - including empty values.
+This behaviour caused the query params to contain keys without values and looked kind of messy.
+
+This change is made for altering the default behaviour of the control -> query param binding and instead of adding redundant empty
+values to the URL, from now on the url will have only non-nullish values.
+
+You can still get the old behaviour by overriding `removeEmptyValue` for each control def you would like to keep syncing
+empty values from the control to the query params.
+
 #v2
 
 ### `twoWay` Strategy 
