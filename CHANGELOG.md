@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/ngneat/bind-query-params/compare/v2.0.1...v3.0.0) (2021-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* 🧨 From now on, empty control values will be removed from the URL query
+params.
+
+### Features
+
+* 🎸 add `removeEmptyValue` config ([096b5df](https://github.com/ngneat/bind-query-params/commit/096b5dfb3435dfa7cfbfb2efb3e5af4568a685b6))
+
+
+### Bug Fixes
+
+* change 'twoWay' to sync url-> model not only once ([18302d3](https://github.com/ngneat/bind-query-params/commit/18302d32030047389ed6c3eb88c7d894093915db))
+* change 'twoWay' to sync url-> model not only once ([a2782a3](https://github.com/ngneat/bind-query-params/commit/a2782a3dc43c6f1c82fedc02089a59cc17187a76))
+
 ### [2.0.1](https://github.com/ngneat/bind-query-params/compare/v2.0.0...v2.0.1) (2021-10-06)
 
 
