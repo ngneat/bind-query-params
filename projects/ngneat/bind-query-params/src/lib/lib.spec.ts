@@ -645,6 +645,35 @@ describe('BindQueryParams', () => {
       expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     }));
 
+    it('should remove nullish value from url', fakeAsync(() => {
+      spectator = createComponent();
+      tick();
+      skipInitialSync(spectator);
+      spectator.component.group = new FormGroup({
+        string: new FormControl(null),
+        object: new FormControl(null),
+        array: new FormControl(null),
+      });
+      // @ts-ignore
+      spectator.component.bindQueryParams = spectator.component.factory
+        .create<EmptyValuesParams>([
+          { queryKey: 'string', type: 'string' },
+          { queryKey: 'object', type: 'object' },
+          { queryKey: 'array', type: 'array' },
+        ])
+        .connect(spectator.component.group);
+
+      tick();
+
+      assertRouterCall(spectator, {
+        string: null,
+        object: null,
+        array: null,
+      });
+
+      expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+    }));
+
     it('should not remove empty value from url', fakeAsync(() => {
       spectator = createComponent();
       tick();
