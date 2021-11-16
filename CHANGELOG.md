@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/ngneat/bind-query-params/compare/v3.0.0...v3.0.1) (2021-11-16)
+
+
+### Bug Fixes
+
+* 🐛 add protection for nullish array values ([526eb99](https://github.com/ngneat/bind-query-params/commit/526eb999c5993e38cd18c85b53e6156cbeeb10d9)), closes [#27](https://github.com/ngneat/bind-query-params/issues/27)
+
 ## [3.0.0](https://github.com/ngneat/bind-query-params/compare/v2.0.1...v3.0.0) (2021-11-10)
 
 
