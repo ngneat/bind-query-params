@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/ngneat/bind-query-params/compare/v3.0.1...v4.0.0) (2021-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* 🧨 The library requires angular v13
+
+### Features
+
+* 🎸 upgrade to angular v13 ([826f658](https://github.com/ngneat/bind-query-params/commit/826f658cb54467be063885b47e70a0cd2a0e44da))
+
 ### [3.0.1](https://github.com/ngneat/bind-query-params/compare/v3.0.0...v3.0.1) (2021-11-16)
 
 
