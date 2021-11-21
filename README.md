@@ -104,9 +104,13 @@ const def = { serializer: (value) => (value instanceof Date ? value.toISOString(
 
 ### `strategy`
 
-When working with async control values, for example, a dropdown list that its options come from the server, we cannot immediately update the control.
+#### `twoWay`
+The default strategy is `twoWay`, which means that query parameters get synced **once** with the form group, and any subsequent form value changes are synced with the URL.
 
-In these cases, we can provide the `modelToUrl` strategy, that will not update the control value when the page loads. When the data is available we can call the `manager.syncDefs()` or `manager.syncAllDefs()` method that'll update the controls based on the current query params:
+#### `modelToUrl`
+As we work with async control values, such as a dropdown list with its options coming from the server, we cannot immediately update the control. When this occurs, we can use the `modelToUrl` strategy, which doesn't update the control value when the page loads. 
+
+Once the data is available, we can call the `manager.syncDefs()` or `manager.syncAllDefs()` methods to update the controls based on the current query parameters:
 
 ```ts
 @Component()

@@ -24,6 +24,10 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.parser;
   }
 
+  get syncInitialControlValue() {
+    return this.config.syncInitialControlValue ?? false;
+  }
+
   get serializer() {
     return this.config.serializer;
   }

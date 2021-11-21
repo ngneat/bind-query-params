@@ -8,6 +8,7 @@ interface Params {
   showErrors: boolean;
   issues: string;
   nested: string;
+  syncInitialControlValue: string;
 }
 
 function valueChanges(group: FormGroup) {
@@ -26,6 +27,7 @@ export class AppComponent {
     searchTerm: new FormControl(),
     showErrors: new FormControl(false),
     issues: new FormControl([]),
+    syncInitialControlValue: new FormControl('initial'),
     nested: new FormGroup(
       {
         a: new FormControl(),
@@ -39,6 +41,10 @@ export class AppComponent {
   private manager = this.factory
     .create<Params>([
       { queryKey: 'searchTerm' },
+      {
+        queryKey: 'syncInitialControlValue',
+        syncInitialControlValue: true,
+      },
       { queryKey: 'showErrors', type: 'boolean' },
       { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
       { queryKey: 'nested', path: 'nested.a' },

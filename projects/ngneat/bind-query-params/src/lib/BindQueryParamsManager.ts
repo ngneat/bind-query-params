@@ -1,7 +1,7 @@
 import { FormGroup } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { coerceArray, resolveParams } from './utils';
+import { coerceArray, get, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
@@ -28,6 +28,8 @@ export class BindQueryParamsManager<T = any> {
   }
 
   onInit() {
+    this.handleInitialSync();
+
     this.updateControl(this.defs, { emitEvent: true }, (def) => def.strategy === 'twoWay');
 
     const controls = this.defs.map((def) => {
@@ -113,6 +115,20 @@ export class BindQueryParamsManager<T = any> {
     });
   }
 
+  private handleInitialSync() {
+    const initialSyncDefs: Parameters<typeof resolveParams>[0] = [];
+
+    this.defs.forEach((def) => {
+      if (def.syncInitialControlValue && !this.paramExists(def.queryKey)) {
+        initialSyncDefs.push({ def, value: get(this.group.value, def.path) });
+      }
+    });
+
+    if (initialSyncDefs.length) {
+      this.updateQueryParams(resolveParams(initialSyncDefs));
+    }
+  }
+
   private updateQueryParams(queryParams: object) {
     this.router.navigate([], {
       queryParams,
@@ -132,11 +148,11 @@ export class BindQueryParamsManager<T = any> {
     for (const def of defs) {
       if (updatePredicate(def)) {
         const { queryKey } = def;
-        const queryDef = queryParams.get(queryKey);
+        const queryParamValue = queryParams.get(queryKey);
 
-        if (!queryDef) continue;
+        if (!queryParamValue) continue;
 
-        set(value, def.path.split('.'), def.parse(queryDef));
+        set(value, def.path.split('.'), def.parse(queryParamValue));
       }
     }
 
