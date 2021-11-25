@@ -28,16 +28,8 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.syncInitialQueryParamValue ?? true;
   }
 
-  get removeEmptyValue() {
-    return this.config.removeEmptyValue ?? true;
-  }
-
   get serializer() {
     return this.config.serializer;
-  }
-
-  get syncInitialValue() {
-    return this.config.syncInitialValue || false;
   }
 
   get removeEmptyValue() {
