@@ -1,9 +1,9 @@
 import { FormGroup } from '@angular/forms';
-import { merge, Subject, identity } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { coerceArray, resolveParams } from './utils';
-import { auditTime, map, pairwise, startWith, takeUntil } from 'rxjs/operators';
-import { BindQueryParamsOptions, QueryParamParams, ResolveParamsOption, SyncDefsOptions } from './types';
+import { merge, Subject } from 'rxjs';
+import { Router } from '@angular/router';
+import { coerceArray, get, resolveParams } from './utils';
+import { auditTime, map, takeUntil } from 'rxjs/operators';
+import { BindQueryParamsOptions, QueryDefOptions, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './QueryParamDef';
 import set from 'lodash.set';
 
@@ -21,21 +21,24 @@ export class BindQueryParamsManager<T = any> {
 
   constructor(
     private router: Router,
-    private activeRoute: ActivatedRoute,
-    defs: QueryParamParams<T>[] | QueryParamParams<T>,
-    private options: BindQueryParamsOptions
+    defs: QueryDefOptions<T>[] | QueryDefOptions<T>,
+    private options: BindQueryParamsOptions,
+    private createOptions?: Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'>
   ) {
     this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
   }
 
   onInit() {
-    this.updateControl(this.defs, { emitEvent: true }, shouldSyncInitialValue);
+    this.handleInitialURLSync();
+
+    this.updateControl(
+      this.defs,
+      { emitEvent: true },
+      (def) => !!(def.syncInitialQueryParamValue ?? this.createOptions?.syncInitialQueryParamValue)
+    );
 
     const controls = this.defs.map((def) => {
-      const control = this.group.get(def.path)!;
-
-      return control.valueChanges.pipe(
-        shouldSyncInitialValue(def) ? startWith(control.value) : identity,
+      return this.group.get(def.path)!.valueChanges.pipe(
         map((value) => ({
           def,
           value,
@@ -45,7 +48,7 @@ export class BindQueryParamsManager<T = any> {
 
     // Could be a several changes in the same tick,
     // for example when we use reset() or patchValue.
-    // We need to aggregate the changes and apply them at once
+    // We need to aggregate the changes and apply them once
     // because the router navigates in micro task
     let buffer: ResolveParamsOption[] = [];
 
@@ -59,22 +62,6 @@ export class BindQueryParamsManager<T = any> {
         this.updateQueryParams(resolveParams(buffer));
         buffer = [];
       });
-
-    const twoWaySyncDef: QueryParamDef<T>[] = this.defs.filter(({ strategy }: QueryParamDef) => strategy === 'twoWay');
-
-    if (twoWaySyncDef.length) {
-      this.activeRoute.queryParams
-        .pipe(pairwise(), takeUntil(this.$destroy))
-        .subscribe(([prevQueryParams, curQueryParams]) => {
-          let paramsDiff = twoWaySyncDef.filter(
-            ({ queryKey }) => prevQueryParams[queryKey] !== curQueryParams[queryKey]
-          );
-
-          if (paramsDiff.length) {
-            this.updateControl(paramsDiff, { emitEvent: true });
-          }
-        });
-    }
   }
 
   destroy() {
@@ -124,13 +111,38 @@ export class BindQueryParamsManager<T = any> {
   }
 
   paramExists(queryKey: keyof T): boolean {
-    return new URLSearchParams(this.options.windowRef.location.search).has(queryKey as string);
+    return this.search.has(queryKey as string);
   }
 
   someParamExists(): boolean {
     return this.defs.some((def) => {
-      return new URLSearchParams(this.options.windowRef.location.search).has(def.queryKey);
+      return this.search.has(def.queryKey);
     });
+  }
+
+  get search() {
+    return new URLSearchParams(this.options.windowRef.location.search);
+  }
+
+  private handleInitialURLSync() {
+    const initialSyncDefs: Parameters<typeof resolveParams>[0] = [];
+
+    for (const def of this.defs) {
+      const syncInitialControlValue = def.syncInitialControlValue ?? this.createOptions?.syncInitialControlValue;
+
+      if (syncInitialControlValue && !this.paramExists(def.queryKey)) {
+        initialSyncDefs.push({ def, value: get(this.group.value, def.path) });
+      }
+    }
+
+    if (initialSyncDefs.length) {
+      this.updateQueryParams({
+        // The router doesn't know the current query params so
+        // we need to add it manually
+        ...Object.fromEntries(this.search as any),
+        ...resolveParams(initialSyncDefs),
+      });
+    }
   }
 
   private updateQueryParams(queryParams: object) {
@@ -152,11 +164,11 @@ export class BindQueryParamsManager<T = any> {
     for (const def of defs) {
       if (updatePredicate(def)) {
         const { queryKey } = def;
-        const queryDef = queryParams.get(queryKey);
+        const queryParamValue = queryParams.get(queryKey);
 
-        if (!queryDef) continue;
+        if (!queryParamValue) continue;
 
-        set(value, def.path.split('.'), def.parse(queryDef));
+        set(value, def.path.split('.'), def.parse(queryParamValue));
       }
     }
 
@@ -164,8 +176,4 @@ export class BindQueryParamsManager<T = any> {
       this.group.patchValue(value, options);
     }
   }
-}
-
-function shouldSyncInitialValue(def: QueryParamDef) {
-  return def.strategy === 'twoWay' || def.syncInitialValue;
 }

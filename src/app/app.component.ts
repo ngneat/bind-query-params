@@ -8,6 +8,7 @@ interface Params {
   showErrors: boolean;
   issues: string;
   nested: string;
+  syncInitialControlValue: string;
 }
 
 function valueChanges(group: FormGroup) {
@@ -23,9 +24,10 @@ export class AppComponent {
   title = 'bindQueryParams';
 
   group = new FormGroup({
-    searchTerm: new FormControl('some search term'),
+    searchTerm: new FormControl(),
     showErrors: new FormControl(false),
     issues: new FormControl([]),
+    syncInitialControlValue: new FormControl('initial'),
     nested: new FormGroup(
       {
         a: new FormControl(),
@@ -37,12 +39,21 @@ export class AppComponent {
   items: string[] = [];
 
   private manager = this.factory
-    .create<Params>([
-      { queryKey: 'searchTerm' },
-      { queryKey: 'showErrors', type: 'boolean', strategy: 'modelToUrl', syncInitialValue: true },
-      { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
-      { queryKey: 'nested', path: 'nested.a' },
-    ])
+    .create<Params>(
+      [
+        { queryKey: 'searchTerm' },
+        {
+          queryKey: 'syncInitialControlValue',
+          syncInitialControlValue: false,
+        },
+        { queryKey: 'showErrors', type: 'boolean' },
+        { queryKey: 'issues', syncInitialQueryParamValue: false, type: 'array' },
+        { queryKey: 'nested', path: 'nested.a' },
+      ],
+      {
+        syncInitialControlValue: true,
+      }
+    )
     .connect(this.group);
 
   constructor(private factory: BindQueryParamsFactory) {}

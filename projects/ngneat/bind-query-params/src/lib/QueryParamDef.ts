@@ -1,8 +1,8 @@
-import { QueryParamParams } from './types';
+import { QueryDefOptions } from './types';
 import { parse } from './utils';
 
 export class QueryParamDef<QueryParams = any> {
-  constructor(private config: QueryParamParams<QueryParams>) {}
+  constructor(private config: QueryDefOptions<QueryParams>) {}
 
   get queryKey() {
     return this.config.queryKey;
@@ -16,12 +16,20 @@ export class QueryParamDef<QueryParams = any> {
     return this.config.type || 'string';
   }
 
-  get strategy() {
-    return this.config.strategy || 'twoWay';
-  }
-
   get parser() {
     return this.config.parser;
+  }
+
+  get syncInitialControlValue() {
+    return this.config.syncInitialControlValue;
+  }
+
+  get syncInitialQueryParamValue() {
+    return this.config.syncInitialQueryParamValue ?? true;
+  }
+
+  get removeEmptyValue() {
+    return this.config.removeEmptyValue ?? true;
   }
 
   get serializer() {

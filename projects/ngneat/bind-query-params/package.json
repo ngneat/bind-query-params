@@ -3,8 +3,11 @@
   "version": "4.0.0",
   "description": "Sync URL Query Params with Angular Form Controls",
   "dependencies": {
-    "tslib": "^2.0.0",
+    "tslib": "2.3.1",
     "lodash.set": "4.3.2"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=13.0.0"
   },
   "keywords": [
     "angular",

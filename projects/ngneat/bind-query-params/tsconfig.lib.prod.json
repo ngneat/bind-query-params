@@ -2,9 +2,7 @@
 {
   "extends": "./tsconfig.lib.json",
   "compilerOptions": {
+    "target": "ES2020",
     "declarationMap": false
-  },
-  "angularCompilerOptions": {
-    "compilationMode": "partial"
   }
 }

@@ -1,5 +1,7 @@
 <form [formGroup]="group">
   <input type="text" formControlName="searchTerm" placeholder="searchTerm" />
+  <input type="text" formControlName="syncInitialControlValue" placeholder="syncInitialControlValue" />
+
   <input type="checkbox" formControlName="showErrors" />
   <div formGroupName="nested">
     <input type="input" formControlName="a" placeholder="nested.a" />
