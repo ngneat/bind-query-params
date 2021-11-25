@@ -17,5 +17,8 @@
       "@ngneat/bind-query-params": ["projects/ngneat/bind-query-params/src/public-api.ts"]
     },
     "strict": true
+  },
+  "angularCompilerOptions": {
+    "compilationMode": "partial"
   }
 }
