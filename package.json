@@ -47,7 +47,6 @@
     "@types/node": "^12.11.1",
     "all-contributors-cli": "^6.19.0",
     "angular-cli-ghpages": "1.0.0-rc.1",
-    "codelyzer": "^6.0.0",
     "cross-env": "^7.0.3",
     "git-cz": "^4.7.6",
     "husky": "^4.3.5",

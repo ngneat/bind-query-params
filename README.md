@@ -102,13 +102,15 @@ Provide a custom serializer. For example, supposing that we have a `FormControl`
 const def = { serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as string)) };
 ```
 
-### `strategy`
 
-#### `twoWay`
-The default strategy is `twoWay`, which means that query parameters get synced **once** with the form group, and any subsequent form value changes are synced with the URL.
+### `syncInitialControlValue`
+Set the initial control value in the URL (defaults to `false`)
 
-#### `modelToUrl`
-As we work with async control values, such as a dropdown list with its options coming from the server, we cannot immediately update the control. When this occurs, we can use the `modelToUrl` strategy, which doesn't update the control value when the page loads. 
+### `syncInitialQueryParamValue`
+Sync the initial query paramater with the form group (defaults to `true`)
+
+#### Handle Async Data
+When working with async controls, such as a dropdown list whose options are coming from the server, we cannot update the control immediately. In those cases, you can set `syncInitialQueryParamValue` to `false`, which will force the control value to not be updated when the page loads. 
 
 Once the data is available, we can call the `manager.syncDefs()` or `manager.syncAllDefs()` methods to update the controls based on the current query parameters:
 
@@ -125,7 +127,7 @@ export class MyComponent {
     .create<Filters>([
       { queryKey: 'searchTerm' },
       { queryKey: 'someBoolean', type: 'boolean' },
-      { queryKey: 'users', type: 'array', strategy: 'modelToUrl' },
+      { queryKey: 'users', type: 'array', syncInitialQueryParamValue: false },
     ])
     .connect(this.filters);
 
@@ -153,25 +155,3 @@ Note that `syncDefs` will always be called once under the hood.
 ## Browser Support
 
 The library uses the [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) API, which supported in any browser except IE.
-
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://www.netbasal.com/"><img src="https://avatars1.githubusercontent.com/u/6745730?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Netanel Basal</b></sub></a><br /><a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Code">💻</a> <a href="#content-NetanelBasal" title="Content">🖋</a> <a href="https://github.com/@ngneat/bind-query-params/commits?author=NetanelBasal" title="Documentation">📖</a> <a href="#ideas-NetanelBasal" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-NetanelBasal" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-<div>Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>

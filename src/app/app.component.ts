@@ -39,16 +39,21 @@ export class AppComponent {
   items: string[] = [];
 
   private manager = this.factory
-    .create<Params>([
-      { queryKey: 'searchTerm' },
+    .create<Params>(
+      [
+        { queryKey: 'searchTerm' },
+        {
+          queryKey: 'syncInitialControlValue',
+          syncInitialControlValue: false,
+        },
+        { queryKey: 'showErrors', type: 'boolean' },
+        { queryKey: 'issues', syncInitialQueryParamValue: false, type: 'array' },
+        { queryKey: 'nested', path: 'nested.a' },
+      ],
       {
-        queryKey: 'syncInitialControlValue',
         syncInitialControlValue: true,
-      },
-      { queryKey: 'showErrors', type: 'boolean' },
-      { queryKey: 'issues', strategy: 'modelToUrl', type: 'array' },
-      { queryKey: 'nested', path: 'nested.a' },
-    ])
+      }
+    )
     .connect(this.group);
 
   constructor(private factory: BindQueryParamsFactory) {}
