@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/ngneat/bind-query-params/compare/v4.0.0...v5.0.0) (2021-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **lib:** remove strategy options
+
+The `strategy` option is removed in favor of two options:
+`syncInitialControlValue` - Set the initial control value in the URL (defaults to `false`)
+`syncInitialQueryParamValue` - Sync the initial query paramater with the form group (defaults to `true`)
+
+`modelToUrl` is now `syncInitialQueryParamValue: false`.
+
+### Features
+
+* 🎸 upgrade to v13 ([e802dc9](https://github.com/ngneat/bind-query-params/commit/e802dc9237c06f46357dbb5be6685588b334e101))
+* **lib:** remove strategy options ([b4624f1](https://github.com/ngneat/bind-query-params/commit/b4624f148852c330538e7dda957107ec8b965223))
+
+
+### Bug Fixes
+
+* 🐛 revert functionality ([445082e](https://github.com/ngneat/bind-query-params/commit/445082eec2fdbd2bd58f6dacd56ec362bdc883c7))
+
 ## [4.0.0](https://github.com/ngneat/bind-query-params/compare/v3.0.1...v4.0.0) (2021-11-20)
 
 
