@@ -3,19 +3,28 @@ import { merge, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { coerceArray, get, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
-import { BindQueryParamsOptions, QueryDefOptions, ResolveParamsOption, SyncDefsOptions } from './types';
-import { QueryParamDef } from './QueryParamDef';
-import set from 'lodash.set';
+import { BindQueryParamsOptions, CreateOptions, QueryDefOptions, ResolveParamsOption, SyncDefsOptions } from './types';
+import { QueryParamDef } from './query-param-def';
+import set from 'lodash-es/set';
 
 export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
   private group!: FormGroup;
-  private $destroy = new Subject();
-  private defsSynced: Record<keyof T, boolean> = {} as Record<keyof T, boolean>;
+  private destroy$ = new Subject();
+  private syncedDefs = {} as Record<keyof T, boolean>;
 
   connect(group: FormGroup) {
     this.group = group;
-    this.onInit();
+    this.init();
+
+    return this;
+  }
+
+  reconnect(group: FormGroup) {
+    this.destroy();
+    this.group = group;
+    this.init({ reconnect: true });
+
     return this;
   }
 
@@ -23,19 +32,21 @@ export class BindQueryParamsManager<T = any> {
     private router: Router,
     defs: QueryDefOptions<T>[] | QueryDefOptions<T>,
     private options: BindQueryParamsOptions,
-    private createOptions?: Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'>
+    private createOptions?: CreateOptions
   ) {
     this.defs = coerceArray(defs).map((def) => new QueryParamDef(def));
   }
 
-  onInit() {
-    this.handleInitialURLSync();
+  private init(options?: { reconnect: boolean }) {
+    this.handleInitialURLSync(options?.reconnect);
 
-    this.updateControl(
-      this.defs,
-      { emitEvent: true },
-      (def) => !!(def.syncInitialQueryParamValue ?? this.createOptions?.syncInitialQueryParamValue)
-    );
+    if (!options?.reconnect) {
+      this.updateControl(
+        this.defs,
+        { emitEvent: true },
+        (def) => def.syncInitialQueryParamValue ?? !!this.createOptions?.syncInitialQueryParamValue
+      );
+    }
 
     const controls = this.defs.map((def) => {
       return this.group.get(def.path)!.valueChanges.pipe(
@@ -56,7 +67,7 @@ export class BindQueryParamsManager<T = any> {
       .pipe(
         map((result) => buffer.push(result)),
         auditTime(0),
-        takeUntil(this.$destroy)
+        takeUntil(this.destroy$)
       )
       .subscribe(() => {
         this.updateQueryParams(resolveParams(buffer));
@@ -65,7 +76,7 @@ export class BindQueryParamsManager<T = any> {
   }
 
   destroy() {
-    this.$destroy.next();
+    this.destroy$.next();
   }
 
   getDef(queryKey: keyof T) {
@@ -95,8 +106,8 @@ export class BindQueryParamsManager<T = any> {
     const defs: QueryParamDef<T>[] = [];
 
     coerceArray(queryKeys).forEach((key) => {
-      if (!this.defsSynced[key]) {
-        this.defsSynced[key] = true;
+      if (!this.syncedDefs[key]) {
+        this.syncedDefs[key] = true;
         const def = this.getDef(key as keyof T);
 
         if (def) {
@@ -124,28 +135,28 @@ export class BindQueryParamsManager<T = any> {
     return new URLSearchParams(this.options.windowRef.location.search);
   }
 
-  private handleInitialURLSync() {
+  private handleInitialURLSync(reconnect?: boolean) {
     const initialSyncDefs: Parameters<typeof resolveParams>[0] = [];
 
     for (const def of this.defs) {
       const syncInitialControlValue = def.syncInitialControlValue ?? this.createOptions?.syncInitialControlValue;
 
-      if (syncInitialControlValue && !this.paramExists(def.queryKey)) {
+      if (reconnect || (syncInitialControlValue && !this.paramExists(def.queryKey))) {
         initialSyncDefs.push({ def, value: get(this.group.value, def.path) });
       }
     }
 
     if (initialSyncDefs.length) {
       this.updateQueryParams({
-        // The router doesn't know the current query params so
-        // we need to add it manually
-        ...Object.fromEntries(this.search as any),
+        // The router doesn't know the current query params,
+        // so we need to add it manually
+        ...Object.fromEntries(this.search),
         ...resolveParams(initialSyncDefs),
       });
     }
   }
 
-  private updateQueryParams(queryParams: object) {
+  private updateQueryParams(queryParams: Record<string, string | null>) {
     this.router.navigate([], {
       queryParams,
       queryParamsHandling: 'merge',
@@ -158,7 +169,7 @@ export class BindQueryParamsManager<T = any> {
     options: { emitEvent: boolean },
     updatePredicate = (_: QueryParamDef) => true
   ) {
-    const queryParams = new URLSearchParams(this.options.windowRef.location.search);
+    const queryParams = this.search;
     let value: Partial<T> = {};
 
     for (const def of defs) {

@@ -1,6 +1,6 @@
 import { AbstractControl } from '@angular/forms';
 import { ParamDefType, ResolveParamsOption } from './types';
-import { QueryParamDef } from './QueryParamDef';
+import { QueryParamDef } from './query-param-def';
 
 function isEmptyValue(def: QueryParamDef, value: any) {
   switch (def.type) {
