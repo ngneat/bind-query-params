@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/ngneat/bind-query-params/compare/v5.0.0...v5.1.0) (2023-03-22)
+
+
+### Features
+
+* 🎸 add reconnect method ([409ad4a](https://github.com/ngneat/bind-query-params/commit/409ad4a4130000d4849ea86022c99550b8d42616))
+
 ## [5.0.0](https://github.com/ngneat/bind-query-params/compare/v4.0.0...v5.0.0) (2021-11-25)
 
 
