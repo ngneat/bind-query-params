@@ -1,4 +1,4 @@
-import { QueryParamDef } from './QueryParamDef';
+import { QueryParamDef } from './query-param-def';
 
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string' | 'object';
 
@@ -25,3 +25,5 @@ export interface ResolveParamsOption<T = any> {
 export interface SyncDefsOptions {
   emitEvent: boolean;
 }
+
+export type CreateOptions = Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'>;

@@ -152,6 +152,39 @@ export class MyComponent {
 
 Note that `syncDefs` will always be called once under the hood.
 
+### Form Changes
+
+In case the form changes after the bindQueryParamsManager's `connect` was called you'll need to call the `reconnect` method to subscribe to the new form.
+
+```ts
+@Component()
+export class MyComponent {
+  filters = new FormGroup({
+    searchTerm: new FormControl(),
+    users: new FormControl([]),
+    someBoolean: new FormControl(false),
+  });
+
+  bindQueryParamsManager = this.factory
+    .create<Filters>([
+      { queryKey: 'searchTerm' },
+    ])
+    .connect(this.filters);
+
+  constructor(private factory: BindQueryParamsFactory) {}
+
+  ngOnInit() {
+   this.filters.setControl('searchTerm', new FormControl());
+   // We need to reconnect the manager due to the replacement of the control
+   this.bindQueryParamsManager.reconnect(this.filters);
+  }
+
+  ngOnDestroy() {
+    this.bindQueryParamsManager.destroy();
+  }
+}
+```
+
 ## Browser Support
 
 The library uses the [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) API, which supported in any browser except IE.
