@@ -1,23 +1,38 @@
 name: Bind query params
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      - staging
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+
+      - name: Npm install
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: npm run build:lib
-      - run: npm run test:lib:headless
-        env:
-          CI: true
+          node-version: 16
+          cache: 'npm'
+      - run: npm i
+
+      - name: Run dev build
+        run: npm run build:lib
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Npm install
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: npm i
+
+      - name: Run tests
+        run: npm run test:lib:headless
