@@ -19,14 +19,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~13.0.2",
-    "@angular/common": "~13.0.2",
-    "@angular/compiler": "~13.0.2",
-    "@angular/core": "~13.0.2",
-    "@angular/forms": "~13.0.2",
-    "@angular/platform-browser": "~13.0.2",
-    "@angular/platform-browser-dynamic": "~13.0.2",
-    "@angular/router": "~13.0.2",
+    "@angular/animations": "^14.3.0",
+    "@angular/common": "^14.3.0",
+    "@angular/compiler": "^14.3.0",
+    "@angular/core": "^14.3.0",
+    "@angular/forms": "^14.3.0",
+    "@angular/platform-browser": "^14.3.0",
+    "@angular/platform-browser-dynamic": "^14.3.0",
+    "@angular/router": "^14.3.0",
     "acorn": "^8.6.0",
     "lodash-es": "^4.17.21",
     "rxjs": "~6.6.0",
@@ -34,9 +34,9 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~13.0.3",
-    "@angular/cli": "~13.0.3",
-    "@angular/compiler-cli": "~13.0.2",
+    "@angular-devkit/build-angular": "^14.2.11",
+    "@angular/cli": "^14.2.11",
+    "@angular/compiler-cli": "^14.3.0",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-angular": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
@@ -56,10 +56,10 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "lint-staged": "^10.5.3",
-    "ng-packagr": "^13.0.8",
+    "ng-packagr": "^14.2.2",
     "prettier": "^2.2.1",
     "standard-version": "^9.0.0",
-    "typescript": "~4.4.4"
+    "typescript": "~4.8.4"
   },
   "config": {
     "commitizen": {

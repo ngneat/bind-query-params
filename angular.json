@@ -135,7 +135,6 @@
       }
     }
   },
-  "defaultProject": "bind-query-params",
   "cli": {
     "analytics": false
   }
