@@ -7,7 +7,7 @@
   },
   "peerDependencies": {
     "lodash-es": ">=4.17",
-    "@angular/core": ">=13.0.0"
+    "@angular/core": ">=16.0.0"
   },
   "keywords": [
     "angular",

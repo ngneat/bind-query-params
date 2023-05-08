@@ -42,6 +42,7 @@ interface Params {
 }
 
 @Component({
+  selector: 'home',
   template: '',
 })
 class HomeComponent {
@@ -49,12 +50,12 @@ class HomeComponent {
     searchTerm: new FormControl(),
     'withBrackets[gte]': new FormControl(),
     showErrors: new FormControl(false),
-    issues: new FormControl([]),
-    modelToUrl: new FormControl([]),
+    issues: new FormControl<number[]>([]),
+    modelToUrl: new FormControl<number[]>([]),
     modelToUrl2: new FormControl([]),
     a: new FormGroup({
       b: new FormControl(),
-      c: new FormControl([]),
+      c: new FormControl<number[]>([]),
     }),
     parser: new FormControl([]),
     serializer: new FormControl(),
