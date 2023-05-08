@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/ngneat/bind-query-params/compare/v5.1.0...v6.0.0) (2023-05-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* 🧨 The library requires angular v16
+
+### Features
+
+* 🎸 auto destroy manager via destroy ref ([0ae016c](https://github.com/ngneat/bind-query-params/commit/0ae016c56381be632b3658c8aea498d8230899bd))
+
+
+* 🤖 upgrade to ng v16 ([314c707](https://github.com/ngneat/bind-query-params/commit/314c707255e997a9d991f3892331780fa79d8d2c))
+
 ## [5.1.0](https://github.com/ngneat/bind-query-params/compare/v5.0.0...v5.1.0) (2023-03-22)
 
 
