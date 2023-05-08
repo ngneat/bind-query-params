@@ -9,9 +9,11 @@ export class BindQueryParamsFactory {
   private router = inject(Router);
   private options = inject(BIND_QUERY_PARAMS_OPTIONS);
 
-  create<T>(defs: QueryDefOptions<T>[] | QueryDefOptions<T>, createOptions?: CreateOptions): BindQueryParamsManager<T> {
-    const manager = new BindQueryParamsManager<T>(this.router, defs, this.options, createOptions);
-    inject(DestroyRef).onDestroy(() => manager.destroy());
+  create<T>(defs: QueryDefOptions<T>[] | QueryDefOptions<T>, options?: CreateOptions): BindQueryParamsManager<T> {
+    const injector = options?.injector ?? inject(Injector);
+    const manager = new BindQueryParamsManager<T>(this.router, defs, this.options, options);
+
+    injector.get(DestroyRef).onDestroy(() => manager.destroy());
 
     return manager;
   }

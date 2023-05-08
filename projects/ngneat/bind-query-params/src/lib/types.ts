@@ -1,4 +1,5 @@
 import { QueryParamDef } from './query-param-def';
+import { Injector } from '@angular/core';
 
 export type ParamDefType = 'boolean' | 'array' | 'number' | 'string' | 'object';
 
@@ -26,4 +27,6 @@ export interface SyncDefsOptions {
   emitEvent: boolean;
 }
 
-export type CreateOptions = Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'>;
+export type CreateOptions = Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'> & {
+  injector?: Injector;
+};
