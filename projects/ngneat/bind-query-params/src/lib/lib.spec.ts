@@ -2,8 +2,9 @@ import { BIND_QUERY_PARAMS_OPTIONS, BindQueryParamsFactory } from '@ngneat/bind-
 import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { Subject } from 'rxjs';
 
 function stubQueryParams(params: string) {
   return {
@@ -18,11 +19,21 @@ function stubQueryParams(params: string) {
   };
 }
 
+function stubRouter(events: Subject<NavigationStart>) {
+  return {
+    provide: Router,
+    useValue: {
+      navigate: jasmine.createSpy('navigate'),
+      events,
+    },
+  };
+}
+
 function assertRouterCall(spectator: Spectator<HomeComponent>, queryParams: Record<string, unknown>) {
   expect(spectator.inject(Router).navigate).toHaveBeenCalledOnceWith([], {
     queryParams,
     queryParamsHandling: 'merge',
-    replaceUrl: true,
+    replaceUrl: false,
   });
 
   spectator.inject(Router).navigate.calls.reset();
@@ -64,22 +75,27 @@ class HomeComponent {
   constructor(private factory: BindQueryParamsFactory) {}
 
   bindQueryParams = this.factory
-    .create<Params>([
-      { queryKey: 'searchTerm' },
-      { queryKey: 'withBrackets[gte]' },
-      { queryKey: 'showErrors', type: 'boolean' },
-      { queryKey: 'issues', type: 'array' },
-      { queryKey: 'nested', path: 'a.b' },
-      { queryKey: 'nestedarray', path: 'a.c', type: 'array' },
-      { queryKey: 'parser', type: 'array', parser: (value) => value.split(',').map((v) => +v) },
+    .create<Params>(
+      [
+        { queryKey: 'searchTerm' },
+        { queryKey: 'withBrackets[gte]' },
+        { queryKey: 'showErrors', type: 'boolean' },
+        { queryKey: 'issues', type: 'array' },
+        { queryKey: 'nested', path: 'a.b' },
+        { queryKey: 'nestedarray', path: 'a.c', type: 'array' },
+        { queryKey: 'parser', type: 'array', parser: (value) => value.split(',').map((v) => +v) },
+        {
+          queryKey: 'serializer',
+          parser: (value) => new Date(value),
+          serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as any)),
+        },
+        { queryKey: 'modelToUrl', type: 'array', syncInitialQueryParamValue: false },
+        { queryKey: 'modelToUrl2', type: 'array', syncInitialQueryParamValue: false },
+      ],
       {
-        queryKey: 'serializer',
-        parser: (value) => new Date(value),
-        serializer: (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : (value as any)),
-      },
-      { queryKey: 'modelToUrl', type: 'array', syncInitialQueryParamValue: false },
-      { queryKey: 'modelToUrl2', type: 'array', syncInitialQueryParamValue: false },
-    ])
+        replaceUrl: false,
+      }
+    )
     .connect(this.group);
 }
 
@@ -98,6 +114,7 @@ describe('BindQueryParams', () => {
         provide: Router,
         useValue: {
           navigate: jasmine.createSpy('Router.navigate'),
+          events: new Subject(),
         },
       },
     ],
@@ -481,6 +498,37 @@ describe('BindQueryParams', () => {
           jasmine.objectContaining({
             modelToUrl: ['1', '2', '3'],
             modelToUrl2: ['1', '2'],
+          })
+        );
+      });
+    });
+
+    describe('replaceUrl', () => {
+      it('should sync all control values after popstate changing', () => {
+        const events = new Subject<NavigationStart>();
+        spectator = createComponent({
+          providers: [stubQueryParams('modelToUrl=2,1&modelToUrl2=3,4&searchTerm=hello'), stubRouter(events)],
+        });
+
+        spectator.component.bindQueryParams.syncAllDefs();
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['2', '1'],
+            modelToUrl2: ['3', '4'],
+            searchTerm: 'hello',
+          })
+        );
+        const newUrl = '?modelToUrl=1,3';
+
+        spectator.inject(BIND_QUERY_PARAMS_OPTIONS).windowRef.location.search = newUrl;
+        events.next(new NavigationStart(1, newUrl, 'popstate'));
+
+        expect(spectator.component.group.value).toEqual(
+          jasmine.objectContaining({
+            modelToUrl: ['1', '3'],
+            modelToUrl2: undefined,
+            searchTerm: null,
           })
         );
       });

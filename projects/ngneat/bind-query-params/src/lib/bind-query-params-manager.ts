@@ -184,12 +184,7 @@ export class BindQueryParamsManager<T = any> {
 
     for (const def of defs) {
       if (updatePredicate(def)) {
-        const { queryKey } = def;
-        const queryParamValue = queryParams.get(queryKey);
-
-        if (!queryParamValue) continue;
-
-        set(value, def.path.split('.'), def.parse(queryParamValue));
+        set(value, def.path.split('.'), def.parse(queryParams.get(def.queryKey)));
       }
     }
 
