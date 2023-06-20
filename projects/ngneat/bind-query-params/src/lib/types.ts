@@ -25,8 +25,10 @@ export interface ResolveParamsOption<T = any> {
 
 export interface SyncDefsOptions {
   emitEvent: boolean;
+  force?: boolean;
 }
 
 export type CreateOptions = Pick<QueryDefOptions, 'syncInitialControlValue' | 'syncInitialQueryParamValue'> & {
   injector?: Injector;
+  replaceUrl?: boolean;
 };

@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
 import { merge, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { coerceArray, get, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, CreateOptions, QueryDefOptions, ResolveParamsOption, SyncDefsOptions } from './types';
@@ -8,10 +8,10 @@ import { QueryParamDef } from './query-param-def';
 import set from 'lodash-es/set';
 
 export class BindQueryParamsManager<T = any> {
-  private defs: QueryParamDef<T>[];
+  private readonly defs: QueryParamDef<T>[];
   private group!: FormGroup;
-  private destroy$ = new Subject();
-  private syncedDefs = {} as Record<keyof T, boolean>;
+  private readonly destroy$ = new Subject<void>();
+  private readonly syncedDefs = new Set<keyof T>();
 
   connect(group: FormGroup) {
     this.group = group;
@@ -73,6 +73,14 @@ export class BindQueryParamsManager<T = any> {
         this.updateQueryParams(resolveParams(buffer));
         buffer = [];
       });
+
+    if (this.createOptions?.replaceUrl === false) {
+      this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event) => {
+        if (event instanceof NavigationStart && event.navigationTrigger === 'popstate') {
+          this.syncAllDefs({ force: true, emitEvent: true });
+        }
+      });
+    }
   }
 
   destroy() {
@@ -102,12 +110,15 @@ export class BindQueryParamsManager<T = any> {
     this.syncDefs(allKeys, options);
   }
 
-  syncDefs(queryKeys: (keyof T & string) | (keyof T & string)[], options: SyncDefsOptions = { emitEvent: true }) {
+  syncDefs(
+    queryKeys: (keyof T & string) | (keyof T & string)[],
+    { force, ...options }: SyncDefsOptions = { emitEvent: true }
+  ) {
     const defs: QueryParamDef<T>[] = [];
 
     coerceArray(queryKeys).forEach((key) => {
-      if (!this.syncedDefs[key]) {
-        this.syncedDefs[key] = true;
+      if (!this.syncedDefs.has(key) || force) {
+        this.syncedDefs.add(key);
         const def = this.getDef(key as keyof T);
 
         if (def) {
@@ -126,9 +137,8 @@ export class BindQueryParamsManager<T = any> {
   }
 
   someParamExists(): boolean {
-    return this.defs.some((def) => {
-      return this.search.has(def.queryKey);
-    });
+    const search = this.search;
+    return this.defs.some((def) => search.has(def.queryKey));
   }
 
   get search() {
@@ -160,7 +170,7 @@ export class BindQueryParamsManager<T = any> {
     this.router.navigate([], {
       queryParams,
       queryParamsHandling: 'merge',
-      replaceUrl: true,
+      replaceUrl: this.createOptions?.replaceUrl ?? true,
     });
   }
 
@@ -170,16 +180,11 @@ export class BindQueryParamsManager<T = any> {
     updatePredicate = (_: QueryParamDef) => true
   ) {
     const queryParams = this.search;
-    let value: Partial<T> = {};
+    const value: Partial<T> = Object.create(null);
 
     for (const def of defs) {
       if (updatePredicate(def)) {
-        const { queryKey } = def;
-        const queryParamValue = queryParams.get(queryKey);
-
-        if (!queryParamValue) continue;
-
-        set(value, def.path.split('.'), def.parse(queryParamValue));
+        set(value, def.path.split('.'), def.parse(queryParams.get(def.queryKey)));
       }
     }
 

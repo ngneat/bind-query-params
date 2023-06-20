@@ -107,7 +107,10 @@ const def = { serializer: (value) => (value instanceof Date ? value.toISOString(
 Set the initial control value in the URL (defaults to `false`)
 
 ### `syncInitialQueryParamValue`
-Sync the initial query paramater with the form group (defaults to `true`)
+Sync the initial query parameter with the form group (defaults to `true`)
+
+### `replaceUrl`
+When true, navigates while replacing the current state in history (defaults to `true`)
 
 #### Handle Async Data
 When working with async controls, such as a dropdown list whose options are coming from the server, we cannot update the control immediately. In those cases, you can set `syncInitialQueryParamValue` to `false`, which will force the control value to not be updated when the page loads. 

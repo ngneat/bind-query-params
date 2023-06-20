@@ -50,8 +50,8 @@ export class QueryParamDef<QueryParams = any> {
     return serializedValue === '[object Object]' ? JSON.stringify(controlValue) : serializedValue;
   }
 
-  parse(queryParamValue: string) {
-    if (this.parser) {
+  parse(queryParamValue: string | null) {
+    if (this.parser && queryParamValue != null) {
       return this.parser(queryParamValue);
     }
 
