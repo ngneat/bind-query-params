@@ -5,7 +5,7 @@ import { coerceArray, get, resolveParams } from './utils';
 import { auditTime, map, takeUntil } from 'rxjs/operators';
 import { BindQueryParamsOptions, CreateOptions, QueryDefOptions, ResolveParamsOption, SyncDefsOptions } from './types';
 import { QueryParamDef } from './query-param-def';
-import set from 'lodash-es/set';
+import { set } from "lodash-es";
 
 export class BindQueryParamsManager<T = any> {
   private defs: QueryParamDef<T>[];
